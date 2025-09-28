@@ -1,0 +1,1396 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Livestream API Details Puller</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        :root {
+            --bg: #f6f8fa;
+            --card: #fff;
+            --text: #111;
+            --muted: #666;
+            --accent: #0b74de;
+            --match-bg: #dff6dd;
+            --diff-bg: #ffe6e6;
+            --border: #e6e9ee;
+            --panel-shadow: 0 6px 18px rgba(18, 24, 37, 0.06);
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0b0f14;
+            --card: #0f1720;
+            --text: #e6eef8;
+            --muted: #98a1b3;
+            --accent: #50a7ff;
+            --match-bg: #183a1f;
+            --diff-bg: #3f1b1b;
+            --border: #22303b;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif
+        }
+
+        .app {
+            max-width: 1400px;
+            margin: 12px auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        header.appbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between
+        }
+
+        .title {
+            font-weight: 700;
+            font-size: 18px
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .btn {
+            background: var(--card);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: var(--panel-shadow);
+            color: var(--text)
+        }
+
+        .btn.small {
+            padding: 6px 8px;
+            font-size: 13px
+        }
+
+        .search {
+            min-width: 420px;
+            max-width: 60%;
+            display: flex;
+            align-items: center
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: var(--card);
+            color: var(--text)
+        }
+
+        .layout {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start
+        }
+
+        .leftpanel {
+            width: 260px;
+            background: var(--card);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: var(--panel-shadow);
+            height: calc(100vh - 160px);
+            overflow: auto
+        }
+
+        .main {
+            flex: 1;
+            background: transparent;
+            min-height: 520px
+        }
+
+        .card {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: var(--panel-shadow)
+        }
+
+        .outlet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        label.inline {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer
+        }
+
+        table.data {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 13px;
+            border: 1px solid var(--border)
+        }
+
+        table.data th,
+        table.data td {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            text-align: left
+        }
+
+        th {
+            font-weight: 600;
+            background: transparent;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(4px)
+        }
+
+        .json-block {
+            background: rgba(0, 0, 0, 0.03);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: var(--mono);
+            font-size: 13px;
+            overflow: auto
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .small-muted {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .diff-table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        .diff-table th,
+        .diff-table td {
+            padding: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            vertical-align: top;
+            font-family: var(--mono);
+            font-size: 13px
+        }
+
+        .match {
+            background: var(--match-bg)
+        }
+
+        .diff {
+            background: var(--diff-bg)
+        }
+
+        .notfound {
+            opacity: 0.6;
+            color: var(--muted)
+        }
+
+        .pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: var(--card);
+            font-weight: 600
+        }
+
+        .overflow-x {
+            overflow: auto
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .modal-overlay {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000
+        }
+
+        .modal {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            border: 1px solid var(--border)
+        }
+
+        .btn.small {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .filter-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent)
+        }
+
+        .filter-tab {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        #filterTabsHolder .btn.small {
+            padding: 6px 10px
+        }
+
+        @media (max-width:900px) {
+            .leftpanel {
+                display: none
+            }
+
+            .search {
+                min-width: 200px
+            }
+
+            .app {
+                padding: 8px
+            }
+        }
+
+        /* loader styles */
+        #ls-loader-spinner {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 6px solid rgba(0, 0, 0, 0.08);
+            border-top-color: var(--accent);
+            animation: ls-spin 1s linear infinite
+        }
+
+        @keyframes ls-spin {
+            from {
+                transform: rotate(0deg)
+            }
+
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* ---------- Left panel / layout fixes (keep left panel visible above wide main content) ---------- */
+        .leftpanel {
+            position: sticky !important;
+            top: 12px !important;
+            z-index: 6 !important;
+            /* ensures panel renders above wide tables */
+            flex: 0 0 260px !important;
+            min-width: 220px !important;
+        }
+
+        /* Keep main content flexible and allow horizontal scrolling without hiding the left panel */
+        .main {
+            min-width: 0;
+            overflow: auto;
+        }
+
+        /* Wrap filter table to avoid pushing layout; this container will horizontally scroll instead */
+        /* Filter table wrapper — take full available width and scroll horizontally if needed.
+        This prevents creating a fixed empty gap on the right side. */
+        .filter-table-wrap {
+            box-sizing: border-box;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            /* small breathing room for horizontal scrollbar */
+        }
+    </style>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+</head>
+
+<body data-theme="light">
+    <div class="app">
+        <header class="appbar">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="title">Livestream API Details Puller</div>
+                <nav style="display:flex;gap:8px;align-items:center;margin-left:12px">
+                    <a href="#/normal" id="navNormal" class="pill">Normal</a>
+                    <a href="#/compare" id="navCompare" class="pill">Compare</a>
+                    <a href="#/filters" id="navFilters" class="pill">Filters</a>
+                </nav>
+            </div>
+
+            <div class="search">
+                <input id="searchInput" placeholder="Search table or JSON... (debounced)" />
+            </div>
+
+            <div class="controls">
+                <select id="outletSingle"></select>
+                <button class="btn small" id="btnReload">Reload</button>
+                <button class="btn small" id="btnExtract">Extract</button>
+                <label class="pill"><input type="checkbox" id="detailsToggle" /> Details</label>
+                <label class="pill"><input type="checkbox" id="themeToggle" /> Theme</label>
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside class="leftpanel card" id="leftPanel">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <strong>Outlets</strong>
+                    <button class="btn small" id="btnSelectAll">All</button>
+                </div>
+                <div class="outlet-list" id="outletCheckboxes"></div>
+                <!-- left panel intentionally minimal: Outlets only for Compare & Filters pages -->
+            </aside>
+
+
+            <main class="main">
+                <!-- Normal -->
+                <div id="pageNormal" class="card page" style="display:none">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div><strong>Normal — Streams</strong> <span id="normalStats" class="small-muted"></span></div>
+                        <div class="hint">Flat table — keys become headers, first column selects rows for URL creation
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+                        <label class="small-muted">Headends</label>
+                        <label><input type="checkbox" class="headend-normal" value="dca"> DCA</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcb"> DCB</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcc"> DCC</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcd"> DCD</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcx"> DCX</label>
+                        <label class="small-muted" style="margin-left:12px">Protocols</label>
+                        <label><input type="checkbox" class="proto-normal" value="HLS"> HLS</label>
+                        <label><input type="checkbox" class="proto-normal" value="DASH"> DASH</label>
+                        <label><input type="checkbox" class="proto-normal" value="SMOOTH"> SMOOTH</label>
+
+                        <button class="btn small" id="createUrlsNormal">Create URLs & Export</button>
+                    </div>
+
+                    <div id="normalTableContainer" class="overflow-x" style="margin-top:8px"></div>
+                </div>
+
+                <!-- Compare -->
+                <div id="pageCompare" class="card page" style="display:none">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <input id="compareSearch" placeholder="Enter OAID to compare"
+                                style="padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);width:360px" />
+                            <button class="btn small" id="compareRunBtn">Search & Compare</button>
+                            <button class="btn small" id="btnCompareExport">Export Compare</button>
+                        </div>
+                        <div class="hint">Select outlets on left — first selected outlet is reference</div>
+                    </div>
+
+                    <div id="compareColumns" style="margin-top:12px;overflow:auto"></div>
+                    <div id="compareDiffSummary" style="margin-top:12px"></div>
+                </div>
+
+                <!-- Filters -->
+                <div id="pageFilters" class="card page" style="display:none">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <select id="filterSelectTop">
+                                <option value="">-- Choose filter --</option>
+                                <option value="drm">DRM Required</option>
+                                <option value="dolby">Has Dolby</option>
+                                <option value="geo">Has Geoblocks</option>
+                            </select>
+                            <button class="btn small" id="filterRunBtnTop">Run Filter</button>
+                        </div>
+
+                        <div>
+                            <label class="small-muted">Headends</label>
+                            <label><input type="checkbox" class="headend-filter" value="dca"> DCA</label>
+                            <label><input type="checkbox" class="headend-filter" value="dcb"> DCB</label>
+                            <label><input type="checkbox" class="headend-filter" value="dcc"> DCC</label>
+                            <label><input type="checkbox" class="headend-filter" value="dcd"> DCD</label>
+                            <label><input type="checkbox" class="headend-filter" value="dcx"> DCX</label>
+                            <label class="small-muted" style="margin-left:8px">Protocols</label>
+                            <label><input type="checkbox" class="proto-filter" value="HLS"> HLS</label>
+                            <label><input type="checkbox" class="proto-filter" value="DASH"> DASH</label>
+                            <label><input type="checkbox" class="proto-filter" value="SMOOTH"> SMOOTH</label>
+                            <button class="btn small" id="createUrlsFilter">Create URLs & Export</button>
+                        </div>
+                    </div>
+
+                    <div id="filterTabsHolder" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"></div>
+                    <div id="filterResults" style="margin-top:12px;overflow:auto"></div>
+                </div>
+
+            </main>
+        </div>
+
+        <div class="footer-note">Tip: Edit CONFIG at top. Use a local proxy if upstream blocks CORS.</div>
+    </div>
+
+    <script>
+        /* ---------------- CONFIG ---------------- */
+        const CONFIG = {
+            BASE_API_TEMPLATE: "https://api.daznfeeds.com/livestream/OutletID_PASTE/?_fmt=json&_rt=b&_fld=oaId,cmId,dc,mta,ac,heETN,heR,drm,cc,rid,desc,oid,al,sst,set,wmk,lnk.urn:perform:mfl:fixture,lmt&_als=l&_ord=sst&_ordSrt=asc&_pgSz=1000",
+            OUTLET_CODES: [
+                { name: "DACH", id: "14c4m63ov2fei1f3pfh9tgrfdf" },
+                { name: "USA", id: "s99r43e6vzn01rtfokcnlvjwx" },
+                { name: "Taiwan", id: "1ovfmjfvdq1321dpuxti2x2c8q" },
+                { name: "Brazil", id: "e53b0s82vpnv1epl6ckjib5hb" },
+                { name: "Italy", id: "a0sqbsvz8yk81pdzyznddokcs" },
+                { name: "Portugal", id: "c9qhvff9uz21skuh4zctiz1n" },
+                { name: "Spain", id: "dabpujpe1o7p1uyx9k1fcoaia" },
+                { name: "Belgium", id: "1s01myh4xwvs91gp8tqvwllj76" },
+                { name: "Japan", id: "bd0hskvlodi14alfsom98pqi" },
+                { name: "ROW", id: "1vw4a7d9kk73m1kurl4hsvzl59" },
+                { name: "France", id: "1h9emivijm87d13yxr38arhw4f" },
+                { name: "Canada", id: "wbac02p8ie5111jaeapaal6kq" },
+                { name: "MENA", id: "yoiaw6eoma751d1ztrojskjt2" }
+            ],
+            FETCH_TIMEOUT: 30000
+        };
+
+        /* ---------- Helpers ---------- */
+        function $(id) { return document.getElementById(id) }
+
+        // robust element builder
+        function el(tag, attrs = {}, children = []) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(attrs || {})) {
+                try {
+                    if (k.startsWith('on') && typeof v === 'function') e.addEventListener(k.slice(2), v);
+                    else if (k === 'class') e.className = v;
+                    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+                    else if (k === 'style') e.setAttribute('style', String(v));
+                    else if (k === 'dataset' && typeof v === 'object') Object.entries(v).forEach(([dk, dv]) => e.dataset[dk] = String(dv));
+                    else if (typeof v === 'boolean') { if (v === true) e.setAttribute(k, ''); }
+                    else if (v !== null && v !== undefined) e.setAttribute(k, String(v));
+                } catch (e2) { console.warn('attr set failed', k, v, e2) }
+            }
+            const append = (c) => {
+                if (c === null || c === undefined || c === false) return;
+                if (Array.isArray(c)) return c.forEach(append);
+                if (c instanceof Node) return e.appendChild(c);
+                e.appendChild(document.createTextNode(String(c)));
+            };
+            append(children);
+            return e;
+        }
+
+        function stripHtml(s) { if (!s) return ''; return String(s).replace(/<\/?[^>]+(>|$)/g, '') }
+        function formatDate(ts) { if (!ts && ts !== 0) return ''; const d = new Date(Number(ts)); return isNaN(d) ? ts : d.toLocaleString() }
+        function debounce(fn, ms = 250) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms) } }
+        function timeoutPromise(p, ms) { return Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('Timeout')), ms))]) }
+
+        /* ---------- Loading overlay helpers ---------- */
+        function ensureLoadingDom() {
+            if (document.getElementById('ls-loader-overlay')) return;
+            const overlay = el('div', { id: 'ls-loader-overlay', class: 'modal-overlay', style: 'display:none;align-items:center;justify-content:center;z-index:11000' }, [
+                el('div', { id: 'ls-loader-box', class: 'modal', style: 'min-width:260px;max-width:420px;display:flex;flex-direction:column;gap:8px;align-items:center' }, [
+                    el('div', { id: 'ls-loader-spinner' }), el('div', { id: 'ls-loader-msg', class: 'small-muted' }, 'Loading...'), el('div', { id: 'ls-loader-pct', class: 'small-muted' }, '')
+                ])
+            ]);
+            document.body.appendChild(overlay);
+        }
+        function showLoading(msg = 'Loading...', pct = null) { ensureLoadingDom(); const ov = $('ls-loader-overlay'); if (!ov) return; ov.style.display = 'flex'; $('ls-loader-msg').textContent = msg; $('ls-loader-pct').textContent = pct === null ? '' : String(pct) + '%'; }
+        function setLoadingProgress(p) { ensureLoadingDom(); const elp = $('ls-loader-pct'); if (elp) elp.textContent = String(p) + '%' }
+        function hideLoading() { const ov = $('ls-loader-overlay'); if (ov) ov.style.display = 'none' }
+
+        /* ---------- API URL builder (use local proxy or direct) ---------- */
+        function createApiUrl(outletId) {
+            // default to local proxy during development
+            return `http://localhost:8000/api/outlet/${encodeURIComponent(outletId)}`;
+            // to call upstream directly (only if CORS allowed), use:
+            // return CONFIG.BASE_API_TEMPLATE.replace('OutletID_PASTE', encodeURIComponent(outletId));
+        }
+
+        /* ---------- App state ---------- */
+        const State = {
+            outlets: CONFIG.OUTLET_CODES,
+            cache: {},
+            flattened: {},
+            selectedOutlet: CONFIG.OUTLET_CODES[0].id,
+            selectedOutletsOrdered: [],
+            selectedForExport: new Set(),
+            selectedRowsForURLs: [],
+            detailsEnabled: false,
+            theme: 'light'
+        };
+
+        /* ---------- Element refs ---------- */
+        const outletSingle = $('outletSingle'), outletCheckboxes = $('outletCheckboxes');
+        const btnSelectAll = $('btnSelectAll'), btnReload = $('btnReload'), btnExtract = $('btnExtract');
+        const searchInput = $('searchInput'), themeToggle = $('themeToggle'), detailsToggle = $('detailsToggle');
+        const normalTableContainer = $('normalTableContainer'), normalStats = $('normalStats');
+        const compareSearch = $('compareSearch'), compareRunBtn = $('compareRunBtn'), compareColumns = $('compareColumns'), compareDiffSummary = $('compareDiffSummary');
+        const filterResults = $('filterResults'), filterTabsHolder = $('filterTabsHolder');
+        const createUrlsNormalBtn = $('createUrlsNormal'), createUrlsFilterBtn = $('createUrlsFilter'), btnCompareExport = $('btnCompareExport');
+
+        /* ---------- Init UI ---------- */
+        function initUI() {
+            // populate outlet select + checkboxes
+            State.outlets.forEach(o => {
+                outletSingle.appendChild(el('option', { value: o.id }, o.name));
+                const id = 'chk_' + o.id;
+                const lbl = el('label', { class: 'inline' }, [el('input', { type: 'checkbox', id: id }), el('span', {}, o.name)]);
+                outletCheckboxes.appendChild(lbl);
+                const cb = $(id);
+                cb.addEventListener('change', (ev) => {
+                    if (ev.target.checked) {
+                        if (!State.selectedOutletsOrdered.includes(o.id)) State.selectedOutletsOrdered.push(o.id);
+                    } else {
+                        const idx = State.selectedOutletsOrdered.indexOf(o.id);
+                        if (idx !== -1) State.selectedOutletsOrdered.splice(idx, 1);
+                    }
+                });
+            });
+
+            outletSingle.value = State.selectedOutlet;
+            outletSingle.addEventListener('change', () => { State.selectedOutlet = outletSingle.value; if (location.hash === '#/normal' || location.hash === '') renderNormalPage(); });
+
+            btnSelectAll.addEventListener('click', () => {
+                const all = State.outlets.map(x => x.id);
+                const anyMissing = all.some(id => !State.selectedOutletsOrdered.includes(id));
+                all.forEach(id => {
+                    const c = $('chk_' + id); if (c) c.checked = anyMissing;
+                    if (anyMissing) { if (!State.selectedOutletsOrdered.includes(id)) State.selectedOutletsOrdered.push(id); }
+                    else { const i = State.selectedOutletsOrdered.indexOf(id); if (i !== -1) State.selectedOutletsOrdered.splice(i, 1); }
+                });
+            });
+
+            // Reload clears cache & selections
+            btnReload.addEventListener('click', () => {
+                State.cache = {}; State.flattened = {}; State.selectedForExport = new Set(); State.selectedRowsForURLs = [];
+                renderCurrentPage();
+            });
+
+            // Extract binding
+            btnExtract.addEventListener('click', exportNormalXLSX);
+
+            // toggles
+            themeToggle.addEventListener('change', () => setTheme(themeToggle.checked ? 'dark' : 'light'));
+            detailsToggle.addEventListener('change', () => { State.detailsEnabled = detailsToggle.checked; });
+
+            // search
+            searchInput.addEventListener('input', debounce(onSearch, 300));
+
+            // compare / filter
+            compareRunBtn.addEventListener('click', () => renderComparePage(true));
+            btnCompareExport.addEventListener('click', exportCompareXLSX);
+            // filter run buttons (top & left)
+            const filterRunBtnElem = $('filterRunBtn') || $('filterRunBtnTop');
+            if (filterRunBtnElem) filterRunBtnElem.addEventListener('click', runFilter);
+
+            // create URLs
+            createUrlsNormalBtn && createUrlsNormalBtn.addEventListener('click', () => createUrlsFromSelected('normal'));
+            createUrlsFilterBtn && createUrlsFilterBtn.addEventListener('click', () => createUrlsFromSelected('filter'));
+            $('btnCreateURLs') && $('btnCreateURLs').addEventListener('click', onCreateURLsFromModal);
+
+            // init router and first page
+            initRouter();
+        }
+
+        /* ---------- Router ---------- */
+        function renderCurrentPage() { showPage(location.hash || '#/normal') }
+        function showPage(hash) {
+            const pages = ['pageNormal', 'pageCompare', 'pageFilters'];
+            pages.forEach(id => $(id).style.display = 'none');
+            // left panel visible only for compare/filters
+            if (hash === '#/compare' || hash === '#/filters') $('leftPanel').style.display = 'block'; else $('leftPanel').style.display = 'none';
+            if (hash === '#/compare') $('pageCompare').style.display = 'block';
+            else if (hash === '#/filters') $('pageFilters').style.display = 'block';
+            else $('pageNormal').style.display = 'block';
+
+            // nav visual
+            const cur = (location.hash || '#/normal').replace('#/', '');
+            ['navNormal', 'navCompare', 'navFilters'].forEach(id => {
+                const a = $(id);
+                if (!a) return;
+                const name = id.replace('nav', '').toLowerCase();
+                a.style.opacity = (name === cur) ? '1' : '0.6';
+            });
+
+            // run page renderers
+            if (hash === '#/compare') renderComparePage(false);
+            else if (hash === '#/filters') renderFiltersPage();
+            else renderNormalPage();
+        }
+        window.addEventListener('hashchange', () => showPage(location.hash));
+        function initRouter() { if (!location.hash) location.hash = '#/normal'; showPage(location.hash); }
+
+        /* ---------- Fetch + Flatten ---------- */
+        async function fetchOutlet(outletId) {
+            if (State.cache[outletId]) return State.cache[outletId].data;
+            const url = createApiUrl(outletId);
+            try {
+                const resp = await timeoutPromise(fetch(url), CONFIG.FETCH_TIMEOUT);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const data = await resp.json();
+                let items = [];
+                if (Array.isArray(data)) items = data;
+                else if (Array.isArray(data.streams)) items = data.streams;
+                else if (Array.isArray(data.items)) items = data.items;
+                else if (typeof data === 'object' && data.streamId) items = [data];
+                State.cache[outletId] = { fetchedAt: Date.now(), data: items };
+                State.flattened[outletId] = items.map(flattenStream);
+                return items;
+            } catch (err) {
+                console.error('fetch error', err);
+                hideLoading();
+                State.cache[outletId] = { fetchedAt: Date.now(), data: [], error: err.message };
+                State.flattened[outletId] = [];
+                return [];
+            }
+        }
+
+        function flattenStream(s) {
+            const row = {};
+            row.streamId = s.streamId || s.id || '';
+            row.description = stripHtml(s.description || s.desc || '');
+            row.oaId = s.oaId || s.oid || s.oa || '';
+            row.lastModTime = formatDate(s.lastModTime || s.lmt);
+            row.streamStartTime = formatDate(s.streamStartTime || s.sst);
+            row.streamEndTime = formatDate(s.streamEndTime || s.set);
+            row.rightsId = s.rightsId || s.rid || '';
+            row.competitionId = s.competitionId || s.cmId || '';
+            row.mta = s.mta || '';
+            row.drmRequired = (s.drm === true || s.drmRequired === true) ? 'Yes' : (s.drm === false || s.drmRequired === false ? 'No' : '');
+            row.heEventTypeName = s.heEventTypeName || s.heETN || '';
+            row.watermarking = s.watermarking || s.wmk || '';
+            row.audioLangs = Array.isArray(s.audioLangs) ? s.audioLangs.join(', ') : (s.al ? (Array.isArray(s.al) ? s.al.join(', ') : s.al) : '');
+            row.audioConfig = Array.isArray(s.audioConfig) ? s.audioConfig.map(a => (a.code || '') + (a.pid ? ':' + a.pid : '')).join('; ') : '';
+            row.overrideId = Array.isArray(s.overrideId) ? s.overrideId.map(o => o.id || o).join(', ') : (s.overrideId || '');
+            row.raw = s;
+            return row;
+        }
+
+        /* ---------- Normal Page ---------- */
+        async function renderNormalPage() {
+            normalTableContainer.innerHTML = '';
+            normalStats.innerText = 'Loading...';
+            showLoading('Loading streams...', 0);
+            try {
+                await fetchOutlet(State.selectedOutlet);
+            } finally {
+                hideLoading();
+            }
+            const rows = State.flattened[State.selectedOutlet] || [];
+            normalStats.innerText = `${rows.length} streams`;
+
+            const q = (searchInput.value || '').trim().toLowerCase();
+            const filtered = q ? rows.filter(r => {
+                const hay = [r.streamId || '', r.description || '', r.oaId || '', r.overrideId || '', JSON.stringify(r.raw || {})].join('||').toLowerCase();
+                return hay.includes(q);
+            }) : rows;
+
+            // union keys
+            const keySet = new Set();
+            rows.forEach(r => { const obj = r.raw || {}; Object.keys(obj).forEach(k => keySet.add(k)) });
+            const preferred = ['_select', 'streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired', 'lastModTime'];
+            const otherKeys = [...keySet].filter(k => !preferred.includes(k));
+            const headers = preferred.concat(otherKeys);
+
+            const table = el('table', { class: 'data' });
+            const theadRow = el('tr', {}, headers.map(h => {
+                if (h === '_select') return el('th', {}, el('input', { type: 'checkbox', id: 'selectAllVisible', onchange: onToggleSelectAllVisible }));
+                return el('th', {}, h);
+            }));
+            table.appendChild(el('thead', {}, theadRow));
+
+            const tbody = el('tbody');
+            filtered.forEach((r, idx) => {
+                const obj = r.raw || {};
+                const uid = r.streamId || r.oaId || ('row_' + idx);
+                const tr = el('tr', {}, headers.map(h => {
+                    if (h === '_select') {
+                        const checked = !!State.selectedForExport.has(uid);
+                        return el('td', {}, el('input', { type: 'checkbox', class: 'rowSelect', 'data-uid': uid, checked: checked, onchange: onRowSelectChange }));
+                    }
+                    let v = obj[h];
+                    if (v === undefined && r[h] !== undefined) v = r[h];
+                    if (typeof v === 'object') v = JSON.stringify(v);
+                    if (v === undefined) v = '';
+                    return el('td', {}, v);
+                }));
+                tr.addEventListener('click', (ev) => {
+                    if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'BUTTON' || ev.target.closest('a')) return;
+                    if (!State.detailsEnabled) return;
+                    showRawModal(r);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            normalTableContainer.appendChild(table);
+
+            // header select all state
+            const visibleUids = filtered.map((r, idx) => r.streamId || r.oaId || ('row_' + idx));
+            const selectAllBox = $('selectAllVisible');
+            if (selectAllBox) {
+                const allSelected = visibleUids.length > 0 && visibleUids.every(uid => State.selectedForExport.has(uid));
+                selectAllBox.checked = allSelected;
+                selectAllBox.indeterminate = !allSelected && visibleUids.some(uid => State.selectedForExport.has(uid));
+            }
+
+            if (q) runMarkOnContainer(normalTableContainer, q);
+        }
+
+        /* ---------- Selection helpers ---------- */
+        function onToggleSelectAllVisible(e) {
+            const checked = e.target.checked;
+            const boxes = Array.from(document.querySelectorAll('#normalTableContainer tbody .rowSelect') || []);
+            boxes.forEach(b => {
+                b.checked = checked;
+                const uid = b.dataset.uid;
+                if (checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
+            });
+            const header = $('selectAllVisible');
+            if (header) {
+                const all = boxes.length > 0 && boxes.every(b => b.checked);
+                const any = boxes.some(b => b.checked);
+                header.checked = all;
+                header.indeterminate = !all && any;
+            }
+        }
+
+        function onRowSelectChange(e) {
+            const uid = e.target.dataset.uid;
+            if (e.target.checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
+            const visibleBoxes = Array.from(document.querySelectorAll('#normalTableContainer tbody .rowSelect') || []);
+            const header = $('selectAllVisible');
+            if (header) {
+                const all = visibleBoxes.length > 0 && visibleBoxes.every(b => b.checked);
+                const any = visibleBoxes.some(b => b.checked);
+                header.checked = all;
+                header.indeterminate = !all && any;
+            }
+        }
+
+        // header-select-all for filter page (only toggles visible rows in the current filter table)
+        function onToggleFilterSelectAllVisible(e) {
+            const checked = e.target.checked;
+            const boxes = Array.from(document.querySelectorAll('#filterResults tbody .filterRowSelect') || []);
+            boxes.forEach(b => {
+                b.checked = checked;
+                const uid = b.dataset.uid;
+                if (checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
+            });
+            // update header checkbox indeterminate state
+            const header = document.getElementById('filterSelectAllVisible');
+            if (header) {
+                const all = boxes.length > 0 && boxes.every(b => b.checked);
+                const any = boxes.some(b => b.checked);
+                header.checked = all;
+                header.indeterminate = !all && any;
+            }
+        }
+
+        // per-row checkbox change handler for filter page
+        function onFilterRowSelectChange(e) {
+            const uid = e.target.dataset.uid;
+            if (!uid) return;
+            if (e.target.checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
+
+            // update header checkbox
+            const boxes = Array.from(document.querySelectorAll('#filterResults tbody .filterRowSelect') || []);
+            const header = document.getElementById('filterSelectAllVisible');
+            if (header) {
+                const all = boxes.length > 0 && boxes.every(b => b.checked);
+                const any = boxes.some(b => b.checked);
+                header.checked = all;
+                header.indeterminate = !all && any;
+            }
+        }
+
+
+        /* ---------- Raw JSON modal ---------- */
+        function showRawModal(row) {
+            const overlay = el('div', { class: 'modal-overlay' });
+            const modal = el('div', { class: 'modal' }, [
+                el('div', {}, [el('strong', {}, `Raw JSON — ${row.streamId || row.oaId || ''}`)]),
+                el('pre', { class: 'json-block', style: 'margin-top:8px;max-height:60vh;overflow:auto' }, JSON.stringify(row.raw, null, 2)),
+                el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;margin-top:8px' }, [
+                    el('button', { class: 'btn small', onclick: () => document.body.removeChild(overlay) }, 'Close'),
+                    el('button', { class: 'btn small', onclick: () => { State.selectedRowsForURLs.push(row); alert('Selected for URL creation: ' + (row.streamId || row.oaId)); document.body.removeChild(overlay); } }, 'Select for URLs')
+                ])
+            ]);
+            overlay.appendChild(modal);
+            overlay.addEventListener('click', (ev) => { if (ev.target === overlay) document.body.removeChild(overlay); });
+            document.body.appendChild(overlay);
+        }
+
+        /* ---------- Search & mark ---------- */
+        function onSearch() {
+            const current = location.hash || '#/normal';
+            if (current === '#/filters') {
+                const meta = filterResults._meta;
+                if (meta && meta.currentTab) renderFilterTab(meta.currentTab);
+                else renderCurrentPage();
+            } else {
+                renderCurrentPage();
+            }
+        }
+        function runMarkOnContainer(container, term) {
+            try {
+                const instance = new Mark(container);
+                instance.unmark({ done: () => { if (term) instance.mark(term, { separateWordSearch: false }); } });
+            } catch (e) { }
+        }
+
+        /* ---------- Compare (OAID-based) ---------- */
+        async function renderComparePage(triggeredByBtn = false) {
+            compareColumns.innerHTML = ''; compareDiffSummary.innerHTML = '';
+            const outlets = State.selectedOutletsOrdered.slice();
+            if (outlets.length === 0) {
+                compareColumns.appendChild(el('div', { class: 'muted' }, 'Select outlets (left) to compare.'));
+                return;
+            }
+            if (!triggeredByBtn) return;
+            const oaid = (compareSearch.value || '').trim();
+            if (!oaid) return alert('Enter OAID to compare');
+
+            showLoading('Fetching outlets...', 0);
+            let completed = 0, total = outlets.length;
+            await Promise.all(outlets.map(async o => { await fetchOutlet(o).catch(() => { }); completed++; setLoadingProgress(Math.round((completed / total) * 100)); }));
+            hideLoading();
+
+            const found = {};
+            outlets.forEach(o => {
+                const arr = (State.cache[o] && Array.isArray(State.cache[o].data)) ? State.cache[o].data : [];
+                const s = arr.find(x => {
+                    if (!x || typeof x !== 'object') return false;
+                    if (x.oaId && String(x.oaId) === oaid) return true;
+                    if (x.oid && String(x.oid) === oaid) return true;
+                    if (x.oa && String(x.oa) === oaid) return true;
+                    return false;
+                }) || null;
+                found[o] = s;
+            });
+
+            const grid = el('div', { style: 'display:flex;gap:12px;overflow:auto;align-items:flex-start' });
+            outlets.forEach(o => {
+                const meta = State.outlets.find(x => x.id === o) || { name: o };
+                const label = meta.name || o;
+                const displayId = found[o] ? (found[o].oaId || found[o].oid || found[o].oa || found[o].streamId || '') : '';
+                const col = el('div', { style: 'min-width:320px;max-width:420px' }, [
+                    el('div', {}, [el('strong', {}, label), el('div', { class: 'small-muted' }, displayId ? `(${displayId})` : el('span', { class: 'notfound' }, 'Not found'))]),
+                    el('pre', { class: 'json-block', style: 'margin-top:8px;max-height:520px;overflow:auto' }, found[o] ? JSON.stringify(found[o], null, 2) : 'Not found')
+                ]);
+                grid.appendChild(col);
+            });
+            compareColumns.appendChild(grid);
+
+            const ref = outlets[0]; const refObj = found[ref];
+            if (!refObj) {
+                compareDiffSummary.innerHTML = '<div class="muted">Reference not found; cannot compute diffs.</div>';
+                compareDiffSummary._meta = { ref, outlets, found, diffsAll: {}, paths: [] };
+                return;
+            }
+            const diffsAll = {};
+            outlets.slice(1).forEach(o => { const other = found[o]; diffsAll[o] = other ? deepCompare(refObj, other) : null; });
+
+            const allPaths = new Set();
+            Object.keys(diffsAll).forEach(o => { const m = diffsAll[o]; if (m) Object.keys(m).forEach(p => allPaths.add(p)); });
+            const paths = Array.from(allPaths).sort();
+
+            const table = el('table', { class: 'diff-table' });
+            const headerCells = [el('th', {}, 'Path'), el('th', {}, 'Reference (' + (State.outlets.find(x => x.id === ref)?.name || ref) + ')')]
+                .concat(outlets.slice(1).map(o => el('th', {}, (State.outlets.find(x => x.id === o)?.name || o))));
+            table.appendChild(el('thead', {}, el('tr', {}, headerCells)));
+            const tbody = el('tbody');
+            paths.forEach(p => {
+                const refVal = JSON.stringify(getPathValue(refObj, p));
+                const rowCells = [el('td', {}, p), el('td', {}, refVal)];
+                outlets.slice(1).forEach(o => {
+                    const m = diffsAll[o];
+                    if (!m) rowCells.push(el('td', {}, el('span', { class: 'notfound' }, 'Not found')));
+                    else {
+                        const entry = m[p];
+                        if (!entry) rowCells.push(el('td', {}, el('span', { class: 'small-muted' }, '—')));
+                        else { const td = el('td', {}, JSON.stringify(entry.otherVal)); td.classList.add(entry.status === 'match' ? 'match' : 'diff'); rowCells.push(td); }
+                    }
+                });
+                tbody.appendChild(el('tr', {}, rowCells));
+            });
+            table.appendChild(tbody);
+            compareDiffSummary.appendChild(table);
+
+            compareDiffSummary._meta = { ref, outlets, found, diffsAll, paths };
+        }
+
+        /* ---------- Filters ---------- */
+        function renderFiltersPage() { filterResults.innerHTML = ''; filterTabsHolder.innerHTML = ''; }
+
+        async function runFilter() {
+            const sel = $('filterSelect') || $('filterSelectTop');
+            const key = sel.value;
+            if (!key) return alert('Choose a filter');
+            const outlets = State.selectedOutletsOrdered.slice();
+            if (outlets.length === 0) return alert('Select at least one outlet');
+
+            showLoading('Fetching outlets for filters...', 0);
+            let completed = 0, total = outlets.length;
+            await Promise.all(outlets.map(async o => { await fetchOutlet(o).catch(() => { }); completed++; setLoadingProgress(Math.round((completed / total) * 100)); }));
+            hideLoading();
+
+            const perOutlet = {};
+            outlets.forEach(o => {
+                const arr = (State.cache[o] && Array.isArray(State.cache[o].data)) ? State.cache[o].data : [];
+                let filtered = [];
+                if (key === 'drm') filtered = arr.filter(s => s.drm === true || s.drmRequired === true);
+                else if (key === 'dolby') filtered = arr.filter(s => Array.isArray(s.dolbyConfig) && s.dolbyConfig.length > 0);
+                else if (key === 'geo') filtered = arr.filter(s => (Array.isArray(s.geoblockIps) && s.geoblockIps.length > 0) || (Array.isArray(s.geoblockIpRanges) && s.geoblockIpRanges.length > 0));
+                perOutlet[o] = filtered;
+            });
+
+            filterResults._meta = { perOutlet, key, outlets, currentTab: outlets[0] || null };
+
+            // build tabs
+            filterTabsHolder.innerHTML = '';
+            outlets.forEach(o => {
+                const metaOutlet = State.outlets.find(x => x.id === o) || { name: o };
+                const name = metaOutlet.name || o;
+                const count = (perOutlet[o] || []).length;
+                const btn = el('button', { class: 'btn small filter-tab', onclick: (ev) => { Array.from(filterTabsHolder.querySelectorAll('.filter-tab')).forEach(b => b.classList.remove('active')); ev.currentTarget.classList.add('active'); filterResults._meta.currentTab = o; renderFilterTab(o); } }, `${name} (${count})`);
+                filterTabsHolder.appendChild(btn);
+            });
+
+            // activate first
+            const firstBtn = filterTabsHolder.querySelector('.filter-tab');
+            if (firstBtn) { Array.from(filterTabsHolder.querySelectorAll('.filter-tab')).forEach(b => b.classList.remove('active')); firstBtn.classList.add('active'); filterResults._meta.currentTab = outlets[0]; renderFilterTab(outlets[0]); }
+            else filterResults.innerHTML = '<div class="muted">No matches for selected outlets.</div>';
+        }
+
+        // renderFilterTab(outletId) — renders filter results table for a single outlet,
+        // with a first checkbox column and header select-all that affects only visible rows.
+        // This uses State.selectedForExport to persist selections across pages/search.
+        function renderFilterTab(outletId) {
+            const meta = filterResults._meta || {};
+            const perOutlet = meta.perOutlet || {};
+            const rowsSource = perOutlet[outletId] || [];
+
+            // apply global search (same as normal)
+            const q = (searchInput.value || '').trim().toLowerCase();
+            const rowsFiltered = q ? rowsSource.filter(r => {
+                const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase();
+                return hay.includes(q);
+            }) : rowsSource;
+
+            filterResults.innerHTML = '';
+
+            const desired = [
+                '_select', 'streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired',
+                'lastModTime', 'rightsId', 'competitionId', 'mta', 'heResilience', 'heEventTypeName', 'watermarking',
+                'overrideId', 'audioLangs', 'closedCaptioning', 'links', 'audioConfig', 'dolbyConfig', 'geoblockIps', 'geoblockIpRanges'
+            ];
+
+            // include any extra keys present
+            const extraKeys = new Set();
+            rowsFiltered.forEach(r => { if (r && typeof r === 'object') Object.keys(r).forEach(k => { if (!desired.includes(k)) extraKeys.add(k); }) });
+            const headers = desired.concat([...extraKeys]);
+
+            // build table
+            const table = el('table', { class: 'data' });
+            const theadRow = el('tr', {}, headers.map(h => {
+                if (h === '_select') {
+                    return el('th', {}, el('input', { type: 'checkbox', id: 'filterSelectAllVisible', onchange: onToggleFilterSelectAllVisible }));
+                }
+                return el('th', {}, h);
+            }));
+            table.appendChild(el('thead', {}, theadRow));
+            const tb = el('tbody');
+            rowsFiltered.forEach((r, idx) => {
+                const obj = r.raw || r;
+                const uid = (r.oaId || r.streamId || ('frow_' + idx));
+                tb.appendChild(el('tr', {}, headers.map(h => {
+                    if (h === '_select') {
+                        const checked = !!State.selectedForExport.has(uid);
+                        return el('td', {}, el('input', { type: 'checkbox', class: 'filterRowSelect', 'data-uid': uid, checked: checked, onchange: onFilterRowSelectChange }));
+                    }
+                    let v = r[h];
+                    if (v === undefined && obj && obj[h] !== undefined) v = obj[h];
+                    if (v === undefined) v = '';
+                    if (typeof v === 'object') { try { v = JSON.stringify(v); } catch (e) { v = String(v); } }
+                    return el('td', {}, v);
+                })));
+            });
+            table.appendChild(tb);
+
+            const headerName = (State.outlets.find(x => x.id === outletId)?.name) || outletId;
+            filterResults.appendChild(el('div', {}, [el('strong', {}, `Filtered results — ${headerName} (${rowsFiltered.length})`)]));
+
+            // wrap table so it can't push over left panel
+            const wrapper = el('div', { class: 'filter-table-wrap' }, table);
+            filterResults.appendChild(wrapper);
+
+            // update header select-all state
+            const visibleUids = rowsFiltered.map((r, i) => r.oaId || r.streamId || ('frow_' + i));
+            const headerBox = document.getElementById('filterSelectAllVisible');
+            if (headerBox) {
+                const allSelected = visibleUids.length > 0 && visibleUids.every(uid => State.selectedForExport.has(uid));
+                const anySelected = visibleUids.some(uid => State.selectedForExport.has(uid));
+                headerBox.checked = allSelected;
+                headerBox.indeterminate = !allSelected && anySelected;
+            }
+
+            if (q) runMarkOnContainer(filterResults, q);
+        }
+
+
+
+        /* ---------- Create URLs (Normal & Filter) ---------- */
+        function createUrlsFromSelected(mode) {
+            const headends = (mode === 'normal') ? [...document.querySelectorAll('.headend-normal:checked')].map(i => i.value.toLowerCase()) : [...document.querySelectorAll('.headend-filter:checked')].map(i => i.value.toLowerCase());
+            const protos = (mode === 'normal') ? [...document.querySelectorAll('.proto-normal:checked')].map(i => i.value) : [...document.querySelectorAll('.proto-filter:checked')].map(i => i.value);
+            if (headends.length === 0 || protos.length === 0) return alert('Select at least one headend and one protocol');
+
+            const rowsOut = [];
+
+            if (mode === 'normal') {
+                const rowsAll = State.flattened[State.selectedOutlet] || [];
+                rowsAll.forEach(r => {
+                    const uid = r.streamId || r.oaId || '';
+                    if (!State.selectedForExport.size || State.selectedForExport.has(uid)) { // if none selected -> include all, else include only selected
+                        const oa = r.oaId || (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || '';
+                        const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                        const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                        headends.forEach(he => protos.forEach(proto => {
+                            let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                            rowsOut.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                        }));
+                    }
+                });
+            } else {
+                const meta = filterResults._meta || {};
+                const perOutlet = meta.perOutlet || {};
+                const currentTab = meta.currentTab;
+                if (!currentTab) return alert('No filter tab active');
+                // Build the visible list for this tab (apply search)
+                const rowsSource = perOutlet[currentTab] || [];
+                const q = (searchInput.value || '').trim().toLowerCase();
+                const rowsVisible = q ? rowsSource.filter(r => {
+                    const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase();
+                    return hay.includes(q);
+                }) : rowsSource;
+
+                // Determine which UIDs are selected among visible rows
+                const visibleUids = rowsVisible.map((r, i) => (r.oaId || r.streamId || ('frow_' + i)));
+                const selectedVisible = visibleUids.filter(uid => State.selectedForExport.has(uid));
+
+                // If any visible are selected -> limit to those; otherwise use all visible rows
+                const rowsToUse = (selectedVisible.length > 0) ? rowsVisible.filter((r, i) => State.selectedForExport.has((r.oaId || r.streamId || ('frow_' + i)))) : rowsVisible;
+
+                rowsToUse.forEach(r => {
+                    const oa = (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || r.oaId || '';
+                    const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                    const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                    headends.forEach(he => protos.forEach(proto => {
+                        let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                        rowsOut.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                    }));
+                });
+            }
+
+            if (rowsOut.length === 0) return alert('No rows selected / available to create URLs');
+            const csv = rowsOut.map(r => `${JSON.stringify(r[0])},${JSON.stringify(r[1])}`).join('\n');
+            const fname = `URLs-${(new Date()).toISOString().slice(0, 10)}.csv`;
+            saveAs(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), fname);
+        }
+
+
+        // also allow selecting from raw modal
+        function onCreateURLsFromModal() {
+            const headends = [...document.querySelectorAll('.headend-normal:checked')].map(i => i.value.toLowerCase());
+            const protos = [...document.querySelectorAll('.proto-normal:checked')].map(i => i.value);
+            if (headends.length === 0 || protos.length === 0) return alert('Select headend(s) and protocol(s) first.');
+            if (!State.selectedRowsForURLs || State.selectedRowsForURLs.length === 0) return alert('Select rows (via Details -> Select for URLs)');
+            const rows = [];
+            State.selectedRowsForURLs.forEach(r => {
+                const oa = r.oaId || (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || '';
+                const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                headends.forEach(he => protos.forEach(proto => {
+                    let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                    rows.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                }));
+            });
+            const csv = rows.map(r => `${JSON.stringify(r[0])},${JSON.stringify(r[1])}`).join('\n');
+            saveAs(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), `URLs-${(new Date()).toISOString().slice(0, 10)}.csv`);
+            State.selectedRowsForURLs = [];
+        }
+
+        /* ---------- Exports ---------- */
+        async function exportNormalXLSX() {
+            const rows = State.flattened[State.selectedOutlet] || [];
+            if (!rows.length) return alert('No data to export');
+            const desired = ['streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired', 'lastModTime', 'rightsId', 'competitionId', 'mta', 'heResilience', 'heEventTypeName', 'watermarking', 'overrideId', 'audioLangs', 'closedCaptioning', 'links', 'audioConfig', 'dolbyConfig', 'geoblockIps', 'geoblockIpRanges'];
+            const wb = new ExcelJS.Workbook(); wb.creator = 'Livestream Puller';
+            const sh = wb.addWorksheet('Streams');
+            sh.addRow(desired);
+            rows.forEach(r => {
+                const raw = r.raw || {};
+                const rowVals = desired.map(k => {
+                    let v = r[k] !== undefined ? r[k] : raw[k];
+                    if (v === undefined || v === null) return '';
+                    if (typeof v === 'object') try { return JSON.stringify(v); } catch (e) { return String(v); }
+                    return String(v);
+                });
+                sh.addRow(rowVals);
+            });
+            sh.columns.forEach(col => { let max = 10; col.eachCell({ includeEmpty: true }, cell => { const l = cell.value ? String(cell.value).length : 0; if (l > max) max = Math.min(l, 120); }); col.width = max + 2; });
+            const buf = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${State.selectedOutlet}_streams.xlsx`);
+        }
+
+        async function exportCompareXLSX() {
+            const meta = compareDiffSummary._meta;
+            if (!meta) return alert('Run a compare first');
+
+            // Color constants (ExcelJS ARGB)
+            const COLOR_MATCH = 'FFDCFCE7';   // light green
+            const COLOR_DIFF = 'FFFFE6E6';   // light red
+            const COLOR_NOTFOUND = 'FFFFF3C2';// light yellow
+            const HEADER_BG = 'FFD9D9D9';     // grey header background
+            const BORDER_COLOR = 'FF000000';  // black border (you can change)
+
+            const wb = new ExcelJS.Workbook();
+            wb.creator = 'Livestream Puller';
+
+            // Summary sheet
+            const sh = wb.addWorksheet('Compare');
+
+            // Build header labels
+            const headerLabels = [
+                'Path',
+                'Status',
+                'Reference (' + (State.outlets.find(x => x.id === meta.ref)?.name || meta.ref) + ')',
+                ...meta.outlets.filter(o => o !== meta.ref).map(o => (State.outlets.find(x => x.id === o)?.name || o))
+            ];
+            // Add header row
+            const headerRow = sh.addRow(headerLabels);
+
+            // Style header row: Cambria headings, 16pt, bold, center, grey bg, full border
+            const headerFont = { name: 'Cambria', size: 16, bold: true };
+            const headerAlignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+            const thinBorder = {
+                top: { style: 'thin', color: { argb: BORDER_COLOR } },
+                left: { style: 'thin', color: { argb: BORDER_COLOR } },
+                bottom: { style: 'thin', color: { argb: BORDER_COLOR } },
+                right: { style: 'thin', color: { argb: BORDER_COLOR } }
+            };
+
+            headerRow.eachCell((cell) => {
+                cell.font = headerFont;
+                cell.alignment = headerAlignment;
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_BG } };
+                cell.border = thinBorder;
+            });
+
+            // Build a combined list of all paths (same logic as UI)
+            const combined = new Set();
+            Object.keys(meta.diffsAll || {}).forEach(o => {
+                const m = meta.diffsAll[o];
+                if (m) Object.keys(m).forEach(p => combined.add(p));
+            });
+            const paths = Array.from(combined).sort();
+
+            // Data cell font/alignment
+            const dataFont = { name: 'Calibri', size: 11 };
+            const dataAlign = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            // Add rows and style them
+            for (const p of paths) {
+                // compute combined row status (match/diff/missing)
+                let status = 'match';
+                const refObj = (meta.found && meta.found[meta.ref]) || {};
+                const refVal = JSON.stringify(getPathValue(refObj, p));
+                const otherCells = [];
+
+                for (const out of meta.outlets.filter(o => o !== meta.ref)) {
+                    const m = meta.diffsAll[out];
+                    if (!m) {
+                        status = status === 'match' ? 'missing' : status;
+                        otherCells.push({ text: 'Not found', style: 'notfound' });
+                    } else {
+                        const entry = m[p];
+                        if (!entry) {
+                            status = status === 'match' ? 'diff' : status;
+                            otherCells.push({ text: '—', style: 'diff' });
+                        } else {
+                            if (entry.status !== 'match') status = 'diff';
+                            otherCells.push({ text: (typeof entry.otherVal === 'object' ? JSON.stringify(entry.otherVal) : String(entry.otherVal)), style: entry.status });
+                        }
+                    }
+                }
+
+                const rowVals = [p, status, refVal, ...otherCells.map(x => x.text)];
+                const row = sh.addRow(rowVals);
+
+                // apply styling for each cell in the row:
+                // 1 => Path (col 1), 2 => Status, 3 => Reference (no fill), 4.. => other outlets
+                row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                    cell.font = dataFont;
+                    cell.alignment = dataAlign;
+                    cell.border = thinBorder;
+                    // default: no fill for path & reference; style others based on computed values
+                    if (colNumber === 1) {
+                        // Path - keep default background, center aligned (already set)
+                    } else if (colNumber === 2) {
+                        // Status column colored (match/diff)
+                        if (status === 'match') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } };
+                        } else {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } };
+                        }
+                    } else if (colNumber === 3) {
+                        // Reference - leave unfilled (as requested)
+                    } else {
+                        // determine which otherCells index this is
+                        const idx = colNumber - 4; // 0-based index into otherCells
+                        const oc = otherCells[idx];
+                        if (!oc) {
+                            // nothing - leave blank
+                        } else if (oc.style === 'match') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } };
+                        } else if (oc.style === 'notfound') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NOTFOUND } };
+                        } else {
+                            // diff/missing/extra -> red
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } };
+                        }
+                    }
+                });
+            }
+
+            // Optional: adjust column widths for readability (do a modest auto-size)
+            try {
+                sh.columns.forEach((col) => {
+                    let maxLength = 10;
+                    col.eachCell({ includeEmpty: true }, (cell) => {
+                        const v = cell.value ? String(cell.value) : '';
+                        const len = Math.min(120, v.length);
+                        if (len > maxLength) maxLength = len;
+                    });
+                    col.width = Math.min(60, Math.max(12, Math.ceil(maxLength * 0.9)));
+                });
+            } catch (e) {
+                // ignore auto-width errors
+            }
+
+            // Raw JSON sheets per outlet (keep same logic)
+            meta.outlets.forEach(o => {
+                const sheetName = (State.outlets.find(x => x.id === o)?.name || o).slice(0, 31);
+                const s = wb.addWorksheet(sheetName);
+                const obj = (meta.found && meta.found[o]) || {};
+                s.addRow(['Pretty JSON']);
+                s.addRow([JSON.stringify(obj, null, 2)]);
+                s.columns = [{ width: Math.min(120, (JSON.stringify(obj, null, 2) || '').length + 4) }];
+                // apply border to the JSON cell too for consistency
+                s.eachRow(r => r.eachCell(c => c.border = thinBorder));
+            });
+
+            // create buffer and download
+            const buf = await wb.xlsx.writeBuffer();
+            const codes = meta.outlets.map(o => (State.outlets.find(x => x.id === o)?.name || o).slice(0, 2).toUpperCase()).join(',');
+            saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `Comparing-${codes}.xlsx`);
+        }
+
+        async function exportFilterResultsXLSX() {
+            const meta = filterResults._meta;
+            if (!meta || !meta.perOutlet) return alert('No filter results to export');
+            const wb = new ExcelJS.Workbook(); wb.creator = 'Livestream Puller';
+            const desired = ['streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired', 'lastModTime', 'rightsId', 'competitionId', 'mta', 'heResilience', 'heEventTypeName', 'watermarking', 'overrideId', 'audioLangs', 'closedCaptioning', 'links', 'audioConfig', 'dolbyConfig', 'geoblockIps', 'geoblockIpRanges'];
+            for (const outletId of Object.keys(meta.perOutlet)) {
+                const rows = meta.perOutlet[outletId] || [];
+                const sheetName = (State.outlets.find(x => x.id === outletId)?.name || outletId).slice(0, 31);
+                const sh = wb.addWorksheet(sheetName);
+                sh.addRow(desired);
+                rows.forEach(r => {
+                    const rowVals = desired.map(k => {
+                        let v = r[k] !== undefined ? r[k] : r.raw && r.raw[k];
+                        if (v === undefined || v === null) return '';
+                        if (typeof v === 'object') return JSON.stringify(v);
+                        return String(v);
+                    });
+                    sh.addRow(rowVals);
+                });
+            }
+            const buf = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `Filtered-${(new Date()).toISOString().slice(0, 10)}.xlsx`);
+        }
+
+        /* ---------- Deep-diff helpers ---------- */
+        function deepCompare(ref, other) {
+            const results = {};
+            function rec(a, b, p) {
+                if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null && !Array.isArray(a) && !Array.isArray(b)) {
+                    const keys = Array.from(new Set([...Object.keys(a || {}), ...Object.keys(b || {})]));
+                    keys.forEach(k => rec(a[k], b[k], p ? p + '.' + k : k));
+                    return;
+                }
+                if (Array.isArray(a) && Array.isArray(b)) {
+                    const len = Math.max(a.length, b.length);
+                    for (let i = 0; i < len; i++) rec(a[i], b[i], p + '[' + i + ']');
+                    return;
+                }
+                if (typeof a === 'undefined' && typeof b !== 'undefined') { results[p] = { status: 'extra', refVal: undefined, otherVal: b }; return; }
+                if (typeof a !== 'undefined' && typeof b === 'undefined') { results[p] = { status: 'missing', refVal: a, otherVal: undefined }; return; }
+                const aStr = (a === null ? 'null' : (typeof a === 'object' ? JSON.stringify(a) : String(a)));
+                const bStr = (b === null ? 'null' : (typeof b === 'object' ? JSON.stringify(b) : String(b)));
+                results[p] = (aStr === bStr) ? { status: 'match', refVal: a, otherVal: b } : { status: 'diff', refVal: a, otherVal: b };
+            }
+            rec(ref, other, '');
+            return results;
+        }
+
+        function getPathValue(obj, path) {
+            try {
+                if (!path) return undefined;
+                let cur = obj;
+                const tokens = path.split('.').flatMap(p => p.split(/\[|\]/).filter(Boolean));
+                for (const t of tokens) {
+                    if (cur === undefined || cur === null) return undefined;
+                    if (/^\d+$/.test(t) && Array.isArray(cur)) cur = cur[Number(t)]; else cur = cur[t];
+                }
+                return cur;
+            } catch (e) { return undefined }
+        }
+
+        /* ---------- Theme ---------- */
+        function setTheme(t) { document.body.setAttribute('data-theme', t); State.theme = t; themeToggle.checked = (t === 'dark'); }
+        setTheme('light');
+
+        /* ---------- Boot ---------- */
+        initUI();
+        window._LP = { State, CONFIG, fetchOutlet, renderNormalPage, renderComparePage, runFilter, exportFilterResultsXLSX };
+
+    </script>
+</body>
+</html>
