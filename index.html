@@ -656,9 +656,13 @@
 
         /* ---------- API URL builder ---------- */
         function createApiUrl(outletId) {
-            return `http://localhost:8000/api/outlet/${encodeURIComponent(outletId)}`;
-            // or: return CONFIG.BASE_API_TEMPLATE.replace('OutletID_PASTE', encodeURIComponent(outletId));
+          // Replace with your deployed Render service URL (use the URL Render shows for your service)
+          // Example: https://livestream-proxy.onrender.com
+          const PROXY_BASE = 'https://livestream-api-details-puller.onrender.com'; // <-- REPLACE this
+
+          return `${PROXY_BASE}/api/outlet/${encodeURIComponent(outletId)}`;
         }
+
 
         /* ---------- App state ---------- */
         const State = {
