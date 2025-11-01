@@ -17,9 +17,6 @@
             --border: #e6e9ee;
             --panel-shadow: 0 6px 18px rgba(18, 24, 37, 0.06);
             --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
-            --appbar-height: 64px;
-            /* fallback used for first-column offset under the appbar */
-            --row-selected-bg: #f2f2f2;
         }
 
         [data-theme="dark"] {
@@ -31,7 +28,6 @@
             --match-bg: #183a1f;
             --diff-bg: #3f1b1b;
             --border: #22303b;
-            --row-selected-bg: rgba(255, 255, 255, 0.03);
         }
 
         html,
@@ -40,45 +36,34 @@
             margin: 0;
             background: var(--bg);
             color: var(--text);
-            font-family: Inter, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif
         }
 
-        /* App container uses full available width on large screens but keeps small left/right padding */
         .app {
-            max-width: none;
-            width: calc(100% - 24px);
-            margin: 12px;
+            max-width: 1400px;
+            margin: 12px auto;
             padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-sizing: border-box;
+            gap: 12px
         }
 
-        /* Appbar: sticky top so controls/search always visible */
         header.appbar {
             display: flex;
             align-items: center;
             gap: 12px;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 1200;
-            background: var(--card);
-            padding: 8px;
-            border-radius: 8px;
+            justify-content: space-between
         }
 
-        /* Title / controls styling */
         .title {
             font-weight: 700;
-            font-size: 18px;
+            font-size: 18px
         }
 
         .controls {
             display: flex;
             gap: 8px;
-            align-items: center;
+            align-items: center
         }
 
         .btn {
@@ -88,22 +73,19 @@
             border-radius: 8px;
             cursor: pointer;
             box-shadow: var(--panel-shadow);
-            color: var(--text);
+            color: var(--text)
         }
 
         .btn.small {
             padding: 6px 8px;
-            font-size: 13px;
-            background: var(--card);
-            border: 1px solid var(--border);
+            font-size: 13px
         }
 
-        /* Search */
         .search {
-            min-width: 320px;
+            min-width: 420px;
             max-width: 60%;
             display: flex;
-            align-items: center;
+            align-items: center
         }
 
         .search input {
@@ -112,162 +94,136 @@
             border-radius: 10px;
             border: 1px solid rgba(0, 0, 0, 0.08);
             background: var(--card);
-            color: var(--text);
+            color: var(--text)
         }
 
-        /* Layout */
         .layout {
             display: flex;
             gap: 12px;
-            align-items: flex-start;
+            align-items: flex-start
         }
 
-        /* Left panel — sticky and reserved width */
         .leftpanel {
             width: 260px;
-            min-width: 200px;
-            flex: 0 0 260px;
             background: var(--card);
             padding: 12px;
             border-radius: 12px;
             box-shadow: var(--panel-shadow);
             height: calc(100vh - 160px);
-            overflow: auto;
-            position: sticky;
-            top: 12px;
-            z-index: 1150;
-            box-sizing: border-box;
+            overflow: auto
         }
 
-        /* Main area flexible */
         .main {
-            flex: 1 1 auto;
-            min-width: 0;
-            overflow: auto;
+            flex: 1;
+            background: transparent;
+            min-height: 520px
         }
 
-        /* Card */
         .card {
             background: var(--card);
             padding: 12px;
             border-radius: 12px;
-            box-shadow: var(--panel-shadow);
-            box-sizing: border-box;
+            box-shadow: var(--panel-shadow)
         }
 
-        /* Tables */
+        .outlet-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        label.inline {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer
+        }
+
         table.data {
             width: 100%;
             border-collapse: collapse;
             margin-top: 8px;
             font-size: 13px;
-            border: 1px solid var(--border);
-            table-layout: auto;
+            border: 1px solid var(--border)
         }
 
         table.data th,
         table.data td {
             padding: 8px 10px;
             border: 1px solid var(--border);
-            text-align: left;
-            vertical-align: top;
-            background: transparent;
+            text-align: left
         }
 
-        /* IMPORTANT: table headers will NOT be sticky - they scroll with content */
-        table.data th {
-            position: static !important;
-            top: auto !important;
-            z-index: auto;
-            background: var(--card);
+        th {
             font-weight: 600;
-        }
-
-        /* Freeze first column (checkbox column) while horizontally scrolling.
-   The first column sits under the appbar by using a top offset equal to --appbar-height.
-   If your appbar height differs, you can update --appbar-height variable above. */
-        table.data th:first-child,
-        table.data td:first-child {
+            background: transparent;
             position: sticky;
-            left: 0;
-            top: var(--appbar-height);
-            z-index: 1100;
-            background: var(--card);
-            min-width: 56px;
-            padding-left: 10px;
-            padding-right: 10px;
+            top: 0;
+            backdrop-filter: blur(4px)
         }
 
-        /* Ensure the THEAD first cell sits above body-first column to avoid overlap */
-        table.data thead th:first-child {
-            z-index: 1170;
-        }
-
-        /* Small monospace JSON block */
         .json-block {
             background: rgba(0, 0, 0, 0.03);
             padding: 12px;
             border-radius: 8px;
             font-family: var(--mono);
             font-size: 13px;
-            overflow: auto;
+            overflow: auto
         }
 
-        /* Misc */
         .muted {
             color: var(--muted);
-            font-size: 13px;
+            font-size: 13px
         }
 
         .small-muted {
             font-size: 12px;
-            color: var(--muted);
+            color: var(--muted)
         }
 
         .diff-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: collapse
         }
 
         .diff-table th,
         .diff-table td {
             padding: 8px;
             border: 1px solid rgba(0, 0, 0, 0.06);
-            font-family: var(--mono);
-            font-size: 13px;
             vertical-align: top;
+            font-family: var(--mono);
+            font-size: 13px
         }
 
         .match {
-            background: var(--match-bg);
+            background: var(--match-bg)
         }
 
         .diff {
-            background: var(--diff-bg);
+            background: var(--diff-bg)
         }
 
         .notfound {
             opacity: 0.6;
-            color: var(--muted);
+            color: var(--muted)
         }
 
         .pill {
             padding: 6px 10px;
             border-radius: 999px;
             background: var(--card);
-            font-weight: 600;
+            font-weight: 600
         }
 
         .overflow-x {
-            overflow: auto;
+            overflow: auto
         }
 
         .hint {
             font-size: 12px;
-            color: var(--muted);
+            color: var(--muted)
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             left: 0;
@@ -278,7 +234,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
+            z-index: 10000
         }
 
         .modal {
@@ -288,162 +244,92 @@
             max-width: 90%;
             max-height: 90%;
             overflow: auto;
-            border: 1px solid var(--border);
+            border: 1px solid var(--border)
         }
 
-        /* Filter tabs */
+        .btn.small {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
         .filter-tab.active {
             background: var(--accent);
             color: #fff;
-            border-color: var(--accent);
+            border-color: var(--accent)
         }
 
         .filter-tab {
             background: var(--card);
             color: var(--text);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border)
         }
 
         #filterTabsHolder .btn.small {
-            padding: 6px 10px;
+            padding: 6px 10px
         }
 
-        /* Filter wrapper prevents right gap & allows horizontal scrolling */
-        .filter-table-wrap {
-            box-sizing: border-box;
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            -webkit-overflow-scrolling: touch;
+        @media (max-width:900px) {
+            .leftpanel {
+                display: none
+            }
+
+            .search {
+                min-width: 200px
+            }
+
+            .app {
+                padding: 8px
+            }
         }
 
-        /* Selected row visual */
-        tr.row-selected {
-            background: var(--row-selected-bg) !important;
-        }
-
-        /* loader spinner */
+        /* loader styles */
         #ls-loader-spinner {
             width: 48px;
             height: 48px;
             border-radius: 50%;
             border: 6px solid rgba(0, 0, 0, 0.08);
             border-top-color: var(--accent);
-            animation: ls-spin 1s linear infinite;
+            animation: ls-spin 1s linear infinite
         }
 
         @keyframes ls-spin {
             from {
-                transform: rotate(0deg);
+                transform: rotate(0deg)
             }
 
             to {
-                transform: rotate(360deg);
+                transform: rotate(360deg)
             }
         }
 
-        /* Page header & controls spacing helpers to prevent overlap */
-        .page .page-header-row {
-            display: block;
-            margin-bottom: 6px;
+        /* ---------- Left panel / layout fixes (keep left panel visible above wide main content) ---------- */
+        .leftpanel {
+            position: sticky !important;
+            top: 12px !important;
+            z-index: 6 !important;
+            /* ensures panel renders above wide tables */
+            flex: 0 0 260px !important;
+            min-width: 220px !important;
         }
 
-        .page .page-controls-row {
-            display: block;
-            margin-bottom: 8px;
+        /* Keep main content flexible and allow horizontal scrolling without hiding the left panel */
+        .main {
+            min-width: 0;
+            overflow: auto;
         }
 
-        /* Small screen responsive adjustments */
-        @media (max-width:900px) {
-            .leftpanel {
-                display: none;
-            }
-
-            .search {
-                min-width: 200px;
-            }
-
-            .app {
-                padding: 8px;
-                width: calc(100% - 16px);
-                margin: 8px;
-            }
-
-            /* on small screens keep first column relative so layout remains natural */
-            table.data th:first-child,
-            table.data td:first-child {
-                position: relative;
-                left: 0;
-                top: 0;
-                z-index: 1160;
-            }
-
-            table.data thead th:first-child {
-                z-index: 1170;
-            }
-        }
-
-        /* ensure borders visible in dark mode */
-        [data-theme="dark"] table.data,
-        [data-theme="dark"] table.data th,
-        [data-theme="dark"] table.data td {
-            border-color: var(--border);
-        }
-
-        /* final box-sizing for consistency */
-        * {
+        /* Wrap filter table to avoid pushing layout; this container will horizontally scroll instead */
+        /* Filter table wrapper — take full available width and scroll horizontally if needed.
+        This prevents creating a fixed empty gap on the right side. */
+        .filter-table-wrap {
             box-sizing: border-box;
-        }
-
-        /* ---------- Left panel: force vertical list and nicify checkboxes ---------- */
-        /* Paste this near the end of your existing <style> block in <head> */
-
-        aside#leftPanel .outlet-list {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-            align-items: stretch !important;
-            padding: 4px 0 !important;
-        }
-
-        /* Each label should be a full-width row, checkbox on left, text on right */
-        aside#leftPanel .outlet-list label.inline {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 8px !important;
-            width: 100% !important;
-            padding: 6px 8px !important;
-            box-sizing: border-box !important;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        /* Make the checkbox itself not stretch and a consistent size */
-        aside#leftPanel .outlet-list label.inline input[type="checkbox"] {
-            flex: 0 0 auto !important;
-            width: 16px;
-            height: 16px;
-            margin: 0 6px 0 0;
-        }
-
-        /* Ensure the outlet name wraps nicely and doesn't overflow the panel */
-        aside#leftPanel .outlet-list label.inline span {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Slight hover visual to make the list easier to scan */
-        aside#leftPanel .outlet-list label.inline:hover {
-            background: rgba(0, 0, 0, 0.02);
-        }
-
-        /* Keep left panel padding/scrolling intact on small screens */
-        @media (max-width:900px) {
-            aside#leftPanel .outlet-list label.inline {
-                padding: 8px 6px;
-            }
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            /* small breathing room for horizontal scrollbar */
         }
     </style>
 
@@ -485,55 +371,38 @@
                     <button class="btn small" id="btnSelectAll">All</button>
                 </div>
                 <div class="outlet-list" id="outletCheckboxes"></div>
+                <!-- left panel intentionally minimal: Outlets only for Compare & Filters pages -->
             </aside>
+
 
             <main class="main">
                 <!-- Normal -->
-                <!-- Normal -->
                 <div id="pageNormal" class="card page" style="display:none">
-                    <!-- TOP: title + stats + hint (always on top of this page) -->
-                    <div class="page-header-row"
-                        style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-                        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-                            <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
-                                <strong style="font-size:16px">Normal — Streams</strong>
-                                <span id="normalStats" class="small-muted"></span>
-                            </div>
-                            <div class="hint" style="margin-top:2px">Flat table — keys become headers, first column selects rows for URL creation</div>
-                        </div>
-
-                        <!-- Keep this empty container so JS that measures header heights can anchor to it -->
-                        <div style="min-width:120px;display:flex;justify-content:flex-end;align-items:center"></div>
-                    </div>
-
-                    <!-- SECOND ROW: Headends / Protocols controls (kept below title to avoid overlap) -->
-                    <div class="page-controls-row"
-                        style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
-                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                            <label class="small-muted" style="margin-right:6px">Headends</label>
-                            <label><input type="checkbox" class="headend-normal" value="dca"> DCA</label>
-                            <label><input type="checkbox" class="headend-normal" value="dcb"> DCB</label>
-                            <label><input type="checkbox" class="headend-normal" value="dcc"> DCC</label>
-                            <label><input type="checkbox" class="headend-normal" value="dcd"> DCD</label>
-                            <label><input type="checkbox" class="headend-normal" value="dcx"> DCX</label>
-                        </div>
-
-                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                            <label class="small-muted" style="margin-left:8px; margin-right:6px">Protocols</label>
-                            <label><input type="checkbox" class="proto-normal" value="HLS"> HLS</label>
-                            <label><input type="checkbox" class="proto-normal" value="DASH"> DASH</label>
-                            <label><input type="checkbox" class="proto-normal" value="SMOOTH"> SMOOTH</label>
-                        </div>
-
-                        <div style="margin-left:auto">
-                            <button class="btn small" id="createUrlsNormal">Create URLs & Export</button>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div><strong>Normal — Streams</strong> <span id="normalStats" class="small-muted"></span></div>
+                        <div class="hint">Flat table — keys become headers, first column selects rows for URL creation
                         </div>
                     </div>
 
-                    <!-- CONTENT: table container below the controls -->
-                    <div id="normalTableContainer" class="overflow-x" style="margin-top:12px"></div>
+                    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+                        <label class="small-muted">Headends</label>
+                        <label><input type="checkbox" class="headend-normal" value="dca"> DCA</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcb"> DCB</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcc"> DCC</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcd"> DCD</label>
+                        <label><input type="checkbox" class="headend-normal" value="dcx"> DCX</label>
+                        <label class="small-muted" style="margin-left:12px">Protocols</label>
+                        <label><input type="checkbox" class="proto-normal" value="HLS"> HLS</label>
+                        <label><input type="checkbox" class="proto-normal" value="DASH"> DASH</label>
+                        <label><input type="checkbox" class="proto-normal" value="SMOOTH"> SMOOTH</label>
+                        <!-- add Share button left of Create -->
+                        <button class="btn small" id="shareUrlsNormal" style="margin-right:6px">Share Playback
+                            URL</button>
+                        <button class="btn small" id="createUrlsNormal">Create URLs & Export</button>
+                    </div>
+
+                    <div id="normalTableContainer" class="overflow-x" style="margin-top:8px"></div>
                 </div>
-
 
                 <!-- Compare -->
                 <div id="pageCompare" class="card page" style="display:none">
@@ -575,6 +444,9 @@
                             <label><input type="checkbox" class="proto-filter" value="HLS"> HLS</label>
                             <label><input type="checkbox" class="proto-filter" value="DASH"> DASH</label>
                             <label><input type="checkbox" class="proto-filter" value="SMOOTH"> SMOOTH</label>
+                            <!-- add Share button left of Create for Filters page -->
+                            <button class="btn small" id="shareUrlsFilter" style="margin-right:6px">Share Playback
+                                URL</button>
                             <button class="btn small" id="createUrlsFilter">Create URLs & Export</button>
                         </div>
                     </div>
@@ -613,6 +485,8 @@
 
         /* ---------- Helpers ---------- */
         function $(id) { return document.getElementById(id) }
+
+        // robust element builder
         function el(tag, attrs = {}, children = []) {
             const e = document.createElement(tag);
             for (const [k, v] of Object.entries(attrs || {})) {
@@ -624,21 +498,40 @@
                     else if (k === 'dataset' && typeof v === 'object') Object.entries(v).forEach(([dk, dv]) => e.dataset[dk] = String(dv));
                     else if (typeof v === 'boolean') { if (v === true) e.setAttribute(k, ''); }
                     else if (v !== null && v !== undefined) e.setAttribute(k, String(v));
-                } catch (err) { console.warn('attr set failed', k, v, err) }
+                } catch (e2) { console.warn('attr set failed', k, v, e2) }
             }
-            const appendRec = (c) => {
+            const append = (c) => {
                 if (c === null || c === undefined || c === false) return;
-                if (Array.isArray(c)) return c.forEach(appendRec);
+                if (Array.isArray(c)) return c.forEach(append);
                 if (c instanceof Node) return e.appendChild(c);
                 e.appendChild(document.createTextNode(String(c)));
             };
-            appendRec(children);
+            append(children);
             return e;
         }
+
         function stripHtml(s) { if (!s) return ''; return String(s).replace(/<\/?[^>]+(>|$)/g, '') }
-        function formatDate(ts) { if (ts === 0) return new Date(0).toLocaleString(); if (!ts && ts !== 0) return ''; const d = new Date(Number(ts)); return isNaN(d) ? ts : d.toLocaleString(); }
+        function formatDate(ts) { if (!ts && ts !== 0) return ''; const d = new Date(Number(ts)); return isNaN(d) ? ts : d.toLocaleString() }
         function debounce(fn, ms = 250) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms) } }
         function timeoutPromise(p, ms) { return Promise.race([p, new Promise((_, r) => setTimeout(() => r(new Error('Timeout')), ms))]) }
+
+        // ---------- Unicode-safe base64 helpers (NEW) ----------
+        function base64EncodeUnicode(str) {
+            // percent-encode UTF-8 then btoa the raw bytes
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+        }
+        function base64DecodeUnicode(b64) {
+            // atob -> percent-encoded -> decodeURIComponent
+            const raw = atob(b64);
+            const percentEncoded = raw.split('').map(ch => {
+                const code = ch.charCodeAt(0).toString(16).padStart(2, '0');
+                return '%' + code;
+            }).join('');
+            return decodeURIComponent(percentEncoded);
+        }
+
 
         /* ---------- Loading overlay helpers ---------- */
         function ensureLoadingDom() {
@@ -650,33 +543,33 @@
             ]);
             document.body.appendChild(overlay);
         }
-        function showLoading(msg = 'Loading...', pct = null) { ensureLoadingDom(); const ov = $('ls-loader-overlay'); if (!ov) return; ov.style.display = 'flex'; $('ls-loader-msg').textContent = msg; $('ls-loader-pct').textContent = (pct === null ? '' : String(pct) + '%'); }
-        function setLoadingProgress(p) { ensureLoadingDom(); const elp = $('ls-loader-pct'); if (elp) elp.textContent = String(p) + '%'; }
+        function showLoading(msg = 'Loading...', pct = null) { ensureLoadingDom(); const ov = $('ls-loader-overlay'); if (!ov) return; ov.style.display = 'flex'; $('ls-loader-msg').textContent = msg; $('ls-loader-pct').textContent = pct === null ? '' : String(pct) + '%'; }
+        function setLoadingProgress(p) { ensureLoadingDom(); const elp = $('ls-loader-pct'); if (elp) elp.textContent = String(p) + '%' }
         function hideLoading() { const ov = $('ls-loader-overlay'); if (ov) ov.style.display = 'none' }
 
-        /* ---------- API URL builder ---------- */
+        /* ---------- API URL builder (use local proxy or direct) ---------- */
         function createApiUrl(outletId) {
-          // Replace with your deployed Render service URL (use the URL Render shows for your service)
-          // Example: https://livestream-proxy.onrender.com
-          const PROXY_BASE = 'https://livestream-api-details-puller.onrender.com'; // <-- REPLACE this
-
-          return `${PROXY_BASE}/api/outlet/${encodeURIComponent(outletId)}`;
+            // default to local proxy during development
+            return `http://localhost:8000/api/outlet/${encodeURIComponent(outletId)}`;
+            // to call upstream directly (only if CORS allowed), use:
+            // return CONFIG.BASE_API_TEMPLATE.replace('OutletID_PASTE', encodeURIComponent(outletId));
         }
-
 
         /* ---------- App state ---------- */
         const State = {
             outlets: CONFIG.OUTLET_CODES,
-            cache: {}, flattened: {},
+            cache: {},
+            flattened: {},
             selectedOutlet: CONFIG.OUTLET_CODES[0].id,
             selectedOutletsOrdered: [],
             selectedForExport: new Set(),
+            selectedForExportOrdered: [], // <-- NEW: preserve order of selected UIDs for share URL
             selectedRowsForURLs: [],
             detailsEnabled: false,
             theme: 'light'
         };
 
-        /* ---------- DOM refs ---------- */
+        /* ---------- Element refs ---------- */
         const outletSingle = $('outletSingle'), outletCheckboxes = $('outletCheckboxes');
         const btnSelectAll = $('btnSelectAll'), btnReload = $('btnReload'), btnExtract = $('btnExtract');
         const searchInput = $('searchInput'), themeToggle = $('themeToggle'), detailsToggle = $('detailsToggle');
@@ -687,7 +580,7 @@
 
         /* ---------- Init UI ---------- */
         function initUI() {
-            // outlets
+            // populate outlet select + checkboxes
             State.outlets.forEach(o => {
                 outletSingle.appendChild(el('option', { value: o.id }, o.name));
                 const id = 'chk_' + o.id;
@@ -695,8 +588,12 @@
                 outletCheckboxes.appendChild(lbl);
                 const cb = $(id);
                 cb.addEventListener('change', (ev) => {
-                    if (ev.target.checked) { if (!State.selectedOutletsOrdered.includes(o.id)) State.selectedOutletsOrdered.push(o.id); }
-                    else { const idx = State.selectedOutletsOrdered.indexOf(o.id); if (idx !== -1) State.selectedOutletsOrdered.splice(idx, 1); }
+                    if (ev.target.checked) {
+                        if (!State.selectedOutletsOrdered.includes(o.id)) State.selectedOutletsOrdered.push(o.id);
+                    } else {
+                        const idx = State.selectedOutletsOrdered.indexOf(o.id);
+                        if (idx !== -1) State.selectedOutletsOrdered.splice(idx, 1);
+                    }
                 });
             });
 
@@ -713,27 +610,41 @@
                 });
             });
 
+            // Reload clears cache & selections
             btnReload.addEventListener('click', () => {
-                State.cache = {}; State.flattened = {}; State.selectedForExport = new Set(); State.selectedRowsForURLs = []; renderCurrentPage();
+                State.cache = {}; State.flattened = {}; State.selectedForExport = new Set(); State.selectedRowsForURLs = [];
+                renderCurrentPage();
             });
 
+            // Extract binding
             btnExtract.addEventListener('click', exportNormalXLSX);
 
-            themeToggle && themeToggle.addEventListener('change', () => setTheme(themeToggle.checked ? 'dark' : 'light'));
-            detailsToggle && detailsToggle.addEventListener('change', () => { State.detailsEnabled = detailsToggle.checked; });
+            // toggles
+            themeToggle.addEventListener('change', () => setTheme(themeToggle.checked ? 'dark' : 'light'));
+            detailsToggle.addEventListener('change', () => { State.detailsEnabled = detailsToggle.checked; });
 
+            // search
             searchInput.addEventListener('input', debounce(onSearch, 300));
 
-            compareRunBtn && compareRunBtn.addEventListener('click', () => renderComparePage(true));
-            btnCompareExport && btnCompareExport.addEventListener('click', exportCompareXLSX);
-
+            // compare / filter
+            compareRunBtn.addEventListener('click', () => renderComparePage(true));
+            btnCompareExport.addEventListener('click', exportCompareXLSX);
+            // filter run buttons (top & left)
             const filterRunBtnElem = $('filterRunBtn') || $('filterRunBtnTop');
             if (filterRunBtnElem) filterRunBtnElem.addEventListener('click', runFilter);
 
+            // create URLs
             createUrlsNormalBtn && createUrlsNormalBtn.addEventListener('click', () => createUrlsFromSelected('normal'));
             createUrlsFilterBtn && createUrlsFilterBtn.addEventListener('click', () => createUrlsFromSelected('filter'));
             $('btnCreateURLs') && $('btnCreateURLs').addEventListener('click', onCreateURLsFromModal);
+            // wire share buttons (NEW)
+            const shareNormalBtn = $('shareUrlsNormal');
+            if (shareNormalBtn) shareNormalBtn.addEventListener('click', () => makeShareUrl('normal'));
+            const shareFilterBtn = $('shareUrlsFilter');
+            if (shareFilterBtn) shareFilterBtn.addEventListener('click', () => makeShareUrl('filter'));
 
+
+            // init router and first page
             initRouter();
         }
 
@@ -741,19 +652,23 @@
         function renderCurrentPage() { showPage(location.hash || '#/normal') }
         function showPage(hash) {
             const pages = ['pageNormal', 'pageCompare', 'pageFilters'];
-            pages.forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
+            pages.forEach(id => $(id).style.display = 'none');
+            // left panel visible only for compare/filters
             if (hash === '#/compare' || hash === '#/filters') $('leftPanel').style.display = 'block'; else $('leftPanel').style.display = 'none';
             if (hash === '#/compare') $('pageCompare').style.display = 'block';
             else if (hash === '#/filters') $('pageFilters').style.display = 'block';
             else $('pageNormal').style.display = 'block';
 
+            // nav visual
             const cur = (location.hash || '#/normal').replace('#/', '');
             ['navNormal', 'navCompare', 'navFilters'].forEach(id => {
-                const a = $(id); if (!a) return; const name = id.replace('nav', '').toLowerCase();
+                const a = $(id);
+                if (!a) return;
+                const name = id.replace('nav', '').toLowerCase();
                 a.style.opacity = (name === cur) ? '1' : '0.6';
             });
 
-            // call page renderers
+            // run page renderers
             if (hash === '#/compare') renderComparePage(false);
             else if (hash === '#/filters') renderFiltersPage();
             else renderNormalPage();
@@ -812,7 +727,11 @@
             normalTableContainer.innerHTML = '';
             normalStats.innerText = 'Loading...';
             showLoading('Loading streams...', 0);
-            try { await fetchOutlet(State.selectedOutlet); } finally { hideLoading(); }
+            try {
+                await fetchOutlet(State.selectedOutlet);
+            } finally {
+                hideLoading();
+            }
             const rows = State.flattened[State.selectedOutlet] || [];
             normalStats.innerText = `${rows.length} streams`;
 
@@ -822,9 +741,9 @@
                 return hay.includes(q);
             }) : rows;
 
-            // union of raw keys
+            // union keys
             const keySet = new Set();
-            rows.forEach(r => { const obj = r.raw || {}; Object.keys(obj).forEach(k => keySet.add(k)); });
+            rows.forEach(r => { const obj = r.raw || {}; Object.keys(obj).forEach(k => keySet.add(k)) });
             const preferred = ['_select', 'streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired', 'lastModTime'];
             const otherKeys = [...keySet].filter(k => !preferred.includes(k));
             const headers = preferred.concat(otherKeys);
@@ -847,11 +766,10 @@
                     }
                     let v = obj[h];
                     if (v === undefined && r[h] !== undefined) v = r[h];
-                    if (typeof v === 'object') try { v = JSON.stringify(v); } catch (e) { v = String(v); }
+                    if (typeof v === 'object') v = JSON.stringify(v);
                     if (v === undefined) v = '';
                     return el('td', {}, v);
                 }));
-                if (State.selectedForExport.has(uid)) tr.classList.add('row-selected');
                 tr.addEventListener('click', (ev) => {
                     if (ev.target.tagName === 'INPUT' || ev.target.tagName === 'BUTTON' || ev.target.closest('a')) return;
                     if (!State.detailsEnabled) return;
@@ -862,7 +780,7 @@
             table.appendChild(tbody);
             normalTableContainer.appendChild(table);
 
-            // header select-all state
+            // header select all state
             const visibleUids = filtered.map((r, idx) => r.streamId || r.oaId || ('row_' + idx));
             const selectAllBox = $('selectAllVisible');
             if (selectAllBox) {
@@ -872,7 +790,6 @@
             }
 
             if (q) runMarkOnContainer(normalTableContainer, q);
-            updateStickyOffsets();
         }
 
         /* ---------- Selection helpers ---------- */
@@ -882,66 +799,98 @@
             boxes.forEach(b => {
                 b.checked = checked;
                 const uid = b.dataset.uid;
-                const tr = b.closest('tr');
-                if (checked) { State.selectedForExport.add(uid); if (tr) tr.classList.add('row-selected'); }
-                else { State.selectedForExport.delete(uid); if (tr) tr.classList.remove('row-selected'); }
+                if (checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
             });
-
-            const header = document.getElementById('selectAllVisible');
+            const header = $('selectAllVisible');
             if (header) {
                 const all = boxes.length > 0 && boxes.every(b => b.checked);
                 const any = boxes.some(b => b.checked);
-                header.checked = all; header.indeterminate = !all && any;
+                header.checked = all;
+                header.indeterminate = !all && any;
             }
         }
 
+        // row checkbox change for normal page (REPLACEMENT)
         function onRowSelectChange(e) {
             const uid = e.target.dataset.uid;
             const tr = e.target.closest('tr');
-            if (e.target.checked) { State.selectedForExport.add(uid); if (tr) tr.classList.add('row-selected'); }
-            else { State.selectedForExport.delete(uid); if (tr) tr.classList.remove('row-selected'); }
+            if (e.target.checked) {
+                addOrderedSelection(uid);
+                if (tr) tr.classList.add('row-selected');
+            } else {
+                removeOrderedSelection(uid);
+                if (tr) tr.classList.remove('row-selected');
+            }
 
+            // update header checkbox state (same logic as before)
             const visibleBoxes = Array.from(document.querySelectorAll('#normalTableContainer tbody .rowSelect') || []);
             const header = document.getElementById('selectAllVisible');
             if (header) {
                 const all = visibleBoxes.length > 0 && visibleBoxes.every(b => b.checked);
                 const any = visibleBoxes.some(b => b.checked);
-                header.checked = all; header.indeterminate = !all && any;
+                header.checked = all;
+                header.indeterminate = !all && any;
             }
         }
 
+        // header-select-all for filter page (only toggles visible rows in the current filter table)
         function onToggleFilterSelectAllVisible(e) {
             const checked = e.target.checked;
             const boxes = Array.from(document.querySelectorAll('#filterResults tbody .filterRowSelect') || []);
             boxes.forEach(b => {
                 b.checked = checked;
                 const uid = b.dataset.uid;
-                const tr = b.closest('tr');
-                if (checked) { State.selectedForExport.add(uid); if (tr) tr.classList.add('row-selected'); }
-                else { State.selectedForExport.delete(uid); if (tr) tr.classList.remove('row-selected'); }
+                if (checked) State.selectedForExport.add(uid); else State.selectedForExport.delete(uid);
             });
+            // update header checkbox indeterminate state
             const header = document.getElementById('filterSelectAllVisible');
             if (header) {
                 const all = boxes.length > 0 && boxes.every(b => b.checked);
                 const any = boxes.some(b => b.checked);
-                header.checked = all; header.indeterminate = !all && any;
+                header.checked = all;
+                header.indeterminate = !all && any;
             }
         }
 
+        // per-row checkbox change handler for filter page (REPLACEMENT)
         function onFilterRowSelectChange(e) {
             const uid = e.target.dataset.uid;
             const tr = e.target.closest('tr');
-            if (e.target.checked) { State.selectedForExport.add(uid); if (tr) tr.classList.add('row-selected'); }
-            else { State.selectedForExport.delete(uid); if (tr) tr.classList.remove('row-selected'); }
+            if (e.target.checked) {
+                addOrderedSelection(uid);
+                if (tr) tr.classList.add('row-selected');
+            } else {
+                removeOrderedSelection(uid);
+                if (tr) tr.classList.remove('row-selected');
+            }
 
+            // update header checkbox
             const boxes = Array.from(document.querySelectorAll('#filterResults tbody .filterRowSelect') || []);
             const header = document.getElementById('filterSelectAllVisible');
             if (header) {
                 const all = boxes.length > 0 && boxes.every(b => b.checked);
                 const any = boxes.some(b => b.checked);
-                header.checked = all; header.indeterminate = !all && any;
+                header.checked = all;
+                header.indeterminate = !all && any;
             }
         }
+
+        // ---------- Ordered selection helpers (NEW) ----------
+        function addOrderedSelection(uid) {
+            if (!uid) return;
+            // ensure Set has it
+            State.selectedForExport.add(uid);
+            // push if not already there
+            if (!State.selectedForExportOrdered.includes(uid)) State.selectedForExportOrdered.push(uid);
+        }
+        function removeOrderedSelection(uid) {
+            if (!uid) return;
+            State.selectedForExport.delete(uid);
+            const idx = State.selectedForExportOrdered.indexOf(uid);
+            if (idx !== -1) State.selectedForExportOrdered.splice(idx, 1);
+        }
+
+
 
         /* ---------- Raw JSON modal ---------- */
         function showRawModal(row) {
@@ -966,17 +915,25 @@
                 const meta = filterResults._meta;
                 if (meta && meta.currentTab) renderFilterTab(meta.currentTab);
                 else renderCurrentPage();
-            } else renderCurrentPage();
+            } else {
+                renderCurrentPage();
+            }
         }
         function runMarkOnContainer(container, term) {
-            try { const instance = new Mark(container); instance.unmark({ done: () => { if (term) instance.mark(term, { separateWordSearch: false }); } }); } catch (e) { }
+            try {
+                const instance = new Mark(container);
+                instance.unmark({ done: () => { if (term) instance.mark(term, { separateWordSearch: false }); } });
+            } catch (e) { }
         }
 
-        /* ---------- Compare (OAID) ---------- */
+        /* ---------- Compare (OAID-based) ---------- */
         async function renderComparePage(triggeredByBtn = false) {
             compareColumns.innerHTML = ''; compareDiffSummary.innerHTML = '';
             const outlets = State.selectedOutletsOrdered.slice();
-            if (outlets.length === 0) { compareColumns.appendChild(el('div', { class: 'muted' }, 'Select outlets (left) to compare.')); return; }
+            if (outlets.length === 0) {
+                compareColumns.appendChild(el('div', { class: 'muted' }, 'Select outlets (left) to compare.'));
+                return;
+            }
             if (!triggeredByBtn) return;
             const oaid = (compareSearch.value || '').trim();
             if (!oaid) return alert('Enter OAID to compare');
@@ -1013,7 +970,11 @@
             compareColumns.appendChild(grid);
 
             const ref = outlets[0]; const refObj = found[ref];
-            if (!refObj) { compareDiffSummary.innerHTML = '<div class="muted">Reference not found; cannot compute diffs.</div>'; compareDiffSummary._meta = { ref, outlets, found, diffsAll: {}, paths: [] }; return; }
+            if (!refObj) {
+                compareDiffSummary.innerHTML = '<div class="muted">Reference not found; cannot compute diffs.</div>';
+                compareDiffSummary._meta = { ref, outlets, found, diffsAll: {}, paths: [] };
+                return;
+            }
             const diffsAll = {};
             outlets.slice(1).forEach(o => { const other = found[o]; diffsAll[o] = other ? deepCompare(refObj, other) : null; });
 
@@ -1044,15 +1005,14 @@
             compareDiffSummary.appendChild(table);
 
             compareDiffSummary._meta = { ref, outlets, found, diffsAll, paths };
-            updateStickyOffsets();
         }
 
         /* ---------- Filters ---------- */
-        function renderFiltersPage() { filterResults.innerHTML = ''; filterTabsHolder.innerHTML = ''; updateStickyOffsets(); }
+        function renderFiltersPage() { filterResults.innerHTML = ''; filterTabsHolder.innerHTML = ''; }
 
         async function runFilter() {
             const sel = $('filterSelect') || $('filterSelectTop');
-            const key = sel ? sel.value : '';
+            const key = sel.value;
             if (!key) return alert('Choose a filter');
             const outlets = State.selectedOutletsOrdered.slice();
             if (outlets.length === 0) return alert('Select at least one outlet');
@@ -1074,6 +1034,7 @@
 
             filterResults._meta = { perOutlet, key, outlets, currentTab: outlets[0] || null };
 
+            // build tabs
             filterTabsHolder.innerHTML = '';
             outlets.forEach(o => {
                 const metaOutlet = State.outlets.find(x => x.id === o) || { name: o };
@@ -1083,16 +1044,21 @@
                 filterTabsHolder.appendChild(btn);
             });
 
+            // activate first
             const firstBtn = filterTabsHolder.querySelector('.filter-tab');
             if (firstBtn) { Array.from(filterTabsHolder.querySelectorAll('.filter-tab')).forEach(b => b.classList.remove('active')); firstBtn.classList.add('active'); filterResults._meta.currentTab = outlets[0]; renderFilterTab(outlets[0]); }
             else filterResults.innerHTML = '<div class="muted">No matches for selected outlets.</div>';
         }
 
+        // renderFilterTab(outletId) — renders filter results table for a single outlet,
+        // with a first checkbox column and header select-all that affects only visible rows.
+        // This uses State.selectedForExport to persist selections across pages/search.
         function renderFilterTab(outletId) {
             const meta = filterResults._meta || {};
             const perOutlet = meta.perOutlet || {};
             const rowsSource = perOutlet[outletId] || [];
 
+            // apply global search (same as normal)
             const q = (searchInput.value || '').trim().toLowerCase();
             const rowsFiltered = q ? rowsSource.filter(r => {
                 const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase();
@@ -1101,23 +1067,31 @@
 
             filterResults.innerHTML = '';
 
-            const desired = ['_select', 'streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired', 'lastModTime', 'rightsId', 'competitionId', 'mta', 'heResilience', 'heEventTypeName', 'watermarking', 'overrideId', 'audioLangs', 'closedCaptioning', 'links', 'audioConfig', 'dolbyConfig', 'geoblockIps', 'geoblockIpRanges'];
+            const desired = [
+                '_select', 'streamId', 'oaId', 'description', 'streamStartTime', 'streamEndTime', 'drmRequired',
+                'lastModTime', 'rightsId', 'competitionId', 'mta', 'heResilience', 'heEventTypeName', 'watermarking',
+                'overrideId', 'audioLangs', 'closedCaptioning', 'links', 'audioConfig', 'dolbyConfig', 'geoblockIps', 'geoblockIpRanges'
+            ];
+
+            // include any extra keys present
             const extraKeys = new Set();
             rowsFiltered.forEach(r => { if (r && typeof r === 'object') Object.keys(r).forEach(k => { if (!desired.includes(k)) extraKeys.add(k); }) });
             const headers = desired.concat([...extraKeys]);
 
+            // build table
             const table = el('table', { class: 'data' });
             const theadRow = el('tr', {}, headers.map(h => {
-                if (h === '_select') return el('th', {}, el('input', { type: 'checkbox', id: 'filterSelectAllVisible', onchange: onToggleFilterSelectAllVisible }));
+                if (h === '_select') {
+                    return el('th', {}, el('input', { type: 'checkbox', id: 'filterSelectAllVisible', onchange: onToggleFilterSelectAllVisible }));
+                }
                 return el('th', {}, h);
             }));
             table.appendChild(el('thead', {}, theadRow));
             const tb = el('tbody');
-
             rowsFiltered.forEach((r, idx) => {
                 const obj = r.raw || r;
                 const uid = (r.oaId || r.streamId || ('frow_' + idx));
-                const tr = el('tr', {}, headers.map(h => {
+                tb.appendChild(el('tr', {}, headers.map(h => {
                     if (h === '_select') {
                         const checked = !!State.selectedForExport.has(uid);
                         return el('td', {}, el('input', { type: 'checkbox', class: 'filterRowSelect', 'data-uid': uid, checked: checked, onchange: onFilterRowSelectChange }));
@@ -1125,32 +1099,106 @@
                     let v = r[h];
                     if (v === undefined && obj && obj[h] !== undefined) v = obj[h];
                     if (v === undefined) v = '';
-                    if (typeof v === 'object') try { v = JSON.stringify(v); } catch (e) { v = String(v); }
+                    if (typeof v === 'object') { try { v = JSON.stringify(v); } catch (e) { v = String(v); } }
                     return el('td', {}, v);
-                }));
-                if (State.selectedForExport.has(uid)) tr.classList.add('row-selected');
-                tb.appendChild(tr);
+                })));
             });
-
             table.appendChild(tb);
+
             const headerName = (State.outlets.find(x => x.id === outletId)?.name) || outletId;
             filterResults.appendChild(el('div', {}, [el('strong', {}, `Filtered results — ${headerName} (${rowsFiltered.length})`)]));
+
+            // wrap table so it can't push over left panel
             const wrapper = el('div', { class: 'filter-table-wrap' }, table);
             filterResults.appendChild(wrapper);
 
+            // update header select-all state
             const visibleUids = rowsFiltered.map((r, i) => r.oaId || r.streamId || ('frow_' + i));
             const headerBox = document.getElementById('filterSelectAllVisible');
             if (headerBox) {
                 const allSelected = visibleUids.length > 0 && visibleUids.every(uid => State.selectedForExport.has(uid));
                 const anySelected = visibleUids.some(uid => State.selectedForExport.has(uid));
-                headerBox.checked = allSelected; headerBox.indeterminate = !allSelected && anySelected;
+                headerBox.checked = allSelected;
+                headerBox.indeterminate = !allSelected && anySelected;
             }
 
             if (q) runMarkOnContainer(filterResults, q);
-            updateStickyOffsets();
         }
 
-        /* ---------- Create URLs ---------- */
+        // ---------- Build URL rows (NEW helper) ----------
+        function buildUrlRows(mode) {
+            const headends = (mode === 'normal') ? [...document.querySelectorAll('.headend-normal:checked')].map(i => i.value.toLowerCase()) : [...document.querySelectorAll('.headend-filter:checked')].map(i => i.value.toLowerCase());
+            const protos = (mode === 'normal') ? [...document.querySelectorAll('.proto-normal:checked')].map(i => i.value) : [...document.querySelectorAll('.proto-filter:checked')].map(i => i.value);
+            if (headends.length === 0 || protos.length === 0) return { error: 'Select at least one headend and one protocol', rows: [] };
+
+            const rowsOut = [];
+            if (mode === 'normal') {
+                const rowsAll = State.flattened[State.selectedOutlet] || [];
+                // If ordered selections exist, use those in order; else use any Set or everything
+                const ordered = State.selectedForExportOrdered.length ? State.selectedForExportOrdered : Array.from(State.selectedForExport);
+                if (ordered.length) {
+                    // map ordered UIDs to row objects (uid = streamId || oaId)
+                    ordered.forEach(uid => {
+                        const r = rowsAll.find(rr => (rr.streamId === uid || rr.oaId === uid));
+                        if (!r) return;
+                        const oa = r.oaId || (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || '';
+                        const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                        const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                        headends.forEach(he => protos.forEach(proto => {
+                            let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                            rowsOut.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                        }));
+                    });
+                } else {
+                    // no ordered selection: fallback to "visible" selected (selectedForExport) or all rowsAll
+                    rowsAll.forEach(r => {
+                        const uid = r.streamId || r.oaId || '';
+                        if (!State.selectedForExport.size || State.selectedForExport.has(uid)) {
+                            const oa = r.oaId || (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || '';
+                            const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                            const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                            headends.forEach(he => protos.forEach(proto => {
+                                let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                                rowsOut.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                            }));
+                        }
+                    });
+                }
+            } else {
+                // filter mode: respect the current tab and visible rows + ordered selection
+                const meta = filterResults._meta || {};
+                const perOutlet = meta.perOutlet || {};
+                const currentTab = meta.currentTab;
+                if (!currentTab) return { error: 'No active filter tab', rows: [] };
+                const rowsSource = perOutlet[currentTab] || [];
+                const q = (searchInput.value || '').trim().toLowerCase();
+                const rowsVisible = q ? rowsSource.filter(r => {
+                    const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase();
+                    return hay.includes(q);
+                }) : rowsSource;
+
+                // determine whether any visible are selected ordered
+                const visibleUids = rowsVisible.map((r, i) => (r.oaId || r.streamId || ('frow_' + i)));
+                const ordered = State.selectedForExportOrdered.length ? State.selectedForExportOrdered.filter(u => visibleUids.includes(u)) : [];
+                const useRows = ordered.length ? rowsVisible.filter((r, i) => ordered.includes(r.oaId || r.streamId || ('frow_' + i))) : (rowsVisible.filter(r => !State.selectedForExport.size || State.selectedForExport.has((r.oaId || r.streamId || ('frow_' + rowsVisible.indexOf(r))))));
+
+                useRows.forEach(r => {
+                    const oa = (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || r.oaId || '';
+                    const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
+                    const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
+                    headends.forEach(he => protos.forEach(proto => {
+                        let url = proto === 'HLS' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.m3u8?outlet=global` : (proto === 'DASH' ? `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/stream.mpd?outlet=global` : `https://m2a-dazn-preview-${he}.m2amedia.services/${oa}/all/Manifest?outlet=global`);
+                        rowsOut.push([`${he.toUpperCase()} ${desc} ${override} ${proto}`, url]);
+                    }));
+                });
+            }
+
+            return { error: null, rows: rowsOut };
+        }
+
+
+
+        /* ---------- Create URLs (Normal & Filter) ---------- */
         function createUrlsFromSelected(mode) {
             const headends = (mode === 'normal') ? [...document.querySelectorAll('.headend-normal:checked')].map(i => i.value.toLowerCase()) : [...document.querySelectorAll('.headend-filter:checked')].map(i => i.value.toLowerCase());
             const protos = (mode === 'normal') ? [...document.querySelectorAll('.proto-normal:checked')].map(i => i.value) : [...document.querySelectorAll('.proto-filter:checked')].map(i => i.value);
@@ -1162,7 +1210,7 @@
                 const rowsAll = State.flattened[State.selectedOutlet] || [];
                 rowsAll.forEach(r => {
                     const uid = r.streamId || r.oaId || '';
-                    if (!State.selectedForExport.size || State.selectedForExport.has(uid)) {
+                    if (!State.selectedForExport.size || State.selectedForExport.has(uid)) { // if none selected -> include all, else include only selected
                         const oa = r.oaId || (r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa)) || '';
                         const desc = stripHtml(r.description || (r.raw && (r.raw.description || r.raw.desc)) || '').slice(0, 80).replace(/,/g, ' ');
                         const override = Array.isArray(r.raw && r.raw.overrideId) ? r.raw.overrideId.map(x => x.id || x).join('|') : (r.raw && r.raw.overrideId || '');
@@ -1177,11 +1225,19 @@
                 const perOutlet = meta.perOutlet || {};
                 const currentTab = meta.currentTab;
                 if (!currentTab) return alert('No filter tab active');
+                // Build the visible list for this tab (apply search)
                 const rowsSource = perOutlet[currentTab] || [];
                 const q = (searchInput.value || '').trim().toLowerCase();
-                const rowsVisible = q ? rowsSource.filter(r => { const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase(); return hay.includes(q); }) : rowsSource;
+                const rowsVisible = q ? rowsSource.filter(r => {
+                    const hay = [(r.streamId || ''), (r.oaId || ''), (r.description || ''), JSON.stringify(r)].join('||').toLowerCase();
+                    return hay.includes(q);
+                }) : rowsSource;
+
+                // Determine which UIDs are selected among visible rows
                 const visibleUids = rowsVisible.map((r, i) => (r.oaId || r.streamId || ('frow_' + i)));
                 const selectedVisible = visibleUids.filter(uid => State.selectedForExport.has(uid));
+
+                // If any visible are selected -> limit to those; otherwise use all visible rows
                 const rowsToUse = (selectedVisible.length > 0) ? rowsVisible.filter((r, i) => State.selectedForExport.has((r.oaId || r.streamId || ('frow_' + i)))) : rowsVisible;
 
                 rowsToUse.forEach(r => {
@@ -1201,6 +1257,10 @@
             saveAs(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), fname);
         }
 
+
+
+
+        // also allow selecting from raw modal
         function onCreateURLsFromModal() {
             const headends = [...document.querySelectorAll('.headend-normal:checked')].map(i => i.value.toLowerCase());
             const protos = [...document.querySelectorAll('.proto-normal:checked')].map(i => i.value);
@@ -1248,54 +1308,138 @@
             const meta = compareDiffSummary._meta;
             if (!meta) return alert('Run a compare first');
 
-            const COLOR_MATCH = 'FFDCFCE7'; const COLOR_DIFF = 'FFFFE6E6'; const COLOR_NOTFOUND = 'FFFFF3C2'; const HEADER_BG = 'FFD9D9D9'; const BORDER_COLOR = 'FF000000';
-            const wb = new ExcelJS.Workbook(); wb.creator = 'Livestream Puller';
+            // Color constants (ExcelJS ARGB)
+            const COLOR_MATCH = 'FFDCFCE7';   // light green
+            const COLOR_DIFF = 'FFFFE6E6';   // light red
+            const COLOR_NOTFOUND = 'FFFFF3C2';// light yellow
+            const HEADER_BG = 'FFD9D9D9';     // grey header background
+            const BORDER_COLOR = 'FF000000';  // black border (you can change)
+
+            const wb = new ExcelJS.Workbook();
+            wb.creator = 'Livestream Puller';
+
+            // Summary sheet
             const sh = wb.addWorksheet('Compare');
 
-            const headerLabels = ['Path', 'Status', 'Reference (' + (State.outlets.find(x => x.id === meta.ref)?.name || meta.ref) + ')', ...meta.outlets.filter(o => o !== meta.ref).map(o => (State.outlets.find(x => x.id === o)?.name || o))];
+            // Build header labels
+            const headerLabels = [
+                'Path',
+                'Status',
+                'Reference (' + (State.outlets.find(x => x.id === meta.ref)?.name || meta.ref) + ')',
+                ...meta.outlets.filter(o => o !== meta.ref).map(o => (State.outlets.find(x => x.id === o)?.name || o))
+            ];
+            // Add header row
             const headerRow = sh.addRow(headerLabels);
+
+            // Style header row: Cambria headings, 16pt, bold, center, grey bg, full border
             const headerFont = { name: 'Cambria', size: 16, bold: true };
             const headerAlignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-            const thinBorder = { top: { style: 'thin', color: { argb: BORDER_COLOR } }, left: { style: 'thin', color: { argb: BORDER_COLOR } }, bottom: { style: 'thin', color: { argb: BORDER_COLOR } }, right: { style: 'thin', color: { argb: BORDER_COLOR } } };
+            const thinBorder = {
+                top: { style: 'thin', color: { argb: BORDER_COLOR } },
+                left: { style: 'thin', color: { argb: BORDER_COLOR } },
+                bottom: { style: 'thin', color: { argb: BORDER_COLOR } },
+                right: { style: 'thin', color: { argb: BORDER_COLOR } }
+            };
 
-            headerRow.eachCell(cell => { cell.font = headerFont; cell.alignment = headerAlignment; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_BG } }; cell.border = thinBorder; });
+            headerRow.eachCell((cell) => {
+                cell.font = headerFont;
+                cell.alignment = headerAlignment;
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: HEADER_BG } };
+                cell.border = thinBorder;
+            });
 
+            // Build a combined list of all paths (same logic as UI)
             const combined = new Set();
-            Object.keys(meta.diffsAll || {}).forEach(o => { const m = meta.diffsAll[o]; if (m) Object.keys(m).forEach(p => combined.add(p)); });
+            Object.keys(meta.diffsAll || {}).forEach(o => {
+                const m = meta.diffsAll[o];
+                if (m) Object.keys(m).forEach(p => combined.add(p));
+            });
             const paths = Array.from(combined).sort();
-            const dataFont = { name: 'Calibri', size: 11 }; const dataAlign = { vertical: 'middle', horizontal: 'center', wrapText: true };
 
+            // Data cell font/alignment
+            const dataFont = { name: 'Calibri', size: 11 };
+            const dataAlign = { vertical: 'middle', horizontal: 'center', wrapText: true };
+
+            // Add rows and style them
             for (const p of paths) {
+                // compute combined row status (match/diff/missing)
                 let status = 'match';
                 const refObj = (meta.found && meta.found[meta.ref]) || {};
                 const refVal = JSON.stringify(getPathValue(refObj, p));
                 const otherCells = [];
+
                 for (const out of meta.outlets.filter(o => o !== meta.ref)) {
                     const m = meta.diffsAll[out];
-                    if (!m) { status = status === 'match' ? 'missing' : status; otherCells.push({ text: 'Not found', style: 'notfound' }); }
-                    else {
+                    if (!m) {
+                        status = status === 'match' ? 'missing' : status;
+                        otherCells.push({ text: 'Not found', style: 'notfound' });
+                    } else {
                         const entry = m[p];
-                        if (!entry) { status = status === 'match' ? 'diff' : status; otherCells.push({ text: '—', style: 'diff' }); }
-                        else { if (entry.status !== 'match') status = 'diff'; otherCells.push({ text: (typeof entry.otherVal === 'object' ? JSON.stringify(entry.otherVal) : String(entry.otherVal)), style: entry.status }); }
+                        if (!entry) {
+                            status = status === 'match' ? 'diff' : status;
+                            otherCells.push({ text: '—', style: 'diff' });
+                        } else {
+                            if (entry.status !== 'match') status = 'diff';
+                            otherCells.push({ text: (typeof entry.otherVal === 'object' ? JSON.stringify(entry.otherVal) : String(entry.otherVal)), style: entry.status });
+                        }
                     }
                 }
+
                 const rowVals = [p, status, refVal, ...otherCells.map(x => x.text)];
                 const row = sh.addRow(rowVals);
+
+                // apply styling for each cell in the row:
+                // 1 => Path (col 1), 2 => Status, 3 => Reference (no fill), 4.. => other outlets
                 row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                    cell.font = dataFont; cell.alignment = dataAlign; cell.border = thinBorder;
-                    if (colNumber === 2) { if (status === 'match') cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } }; else cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } }; }
-                    else if (colNumber >= 4) {
-                        const idx = colNumber - 4;
+                    cell.font = dataFont;
+                    cell.alignment = dataAlign;
+                    cell.border = thinBorder;
+                    // default: no fill for path & reference; style others based on computed values
+                    if (colNumber === 1) {
+                        // Path - keep default background, center aligned (already set)
+                    } else if (colNumber === 2) {
+                        // Status column colored (match/diff)
+                        if (status === 'match') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } };
+                        } else {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } };
+                        }
+                    } else if (colNumber === 3) {
+                        // Reference - leave unfilled (as requested)
+                    } else {
+                        // determine which otherCells index this is
+                        const idx = colNumber - 4; // 0-based index into otherCells
                         const oc = otherCells[idx];
-                        if (!oc) { }
-                        else if (oc.style === 'match') cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } };
-                        else if (oc.style === 'notfound') cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NOTFOUND } };
-                        else cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } };
+                        if (!oc) {
+                            // nothing - leave blank
+                        } else if (oc.style === 'match') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_MATCH } };
+                        } else if (oc.style === 'notfound') {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_NOTFOUND } };
+                        } else {
+                            // diff/missing/extra -> red
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR_DIFF } };
+                        }
                     }
                 });
             }
 
-            // raw sheets
+            // Optional: adjust column widths for readability (do a modest auto-size)
+            try {
+                sh.columns.forEach((col) => {
+                    let maxLength = 10;
+                    col.eachCell({ includeEmpty: true }, (cell) => {
+                        const v = cell.value ? String(cell.value) : '';
+                        const len = Math.min(120, v.length);
+                        if (len > maxLength) maxLength = len;
+                    });
+                    col.width = Math.min(60, Math.max(12, Math.ceil(maxLength * 0.9)));
+                });
+            } catch (e) {
+                // ignore auto-width errors
+            }
+
+            // Raw JSON sheets per outlet (keep same logic)
             meta.outlets.forEach(o => {
                 const sheetName = (State.outlets.find(x => x.id === o)?.name || o).slice(0, 31);
                 const s = wb.addWorksheet(sheetName);
@@ -1303,9 +1447,11 @@
                 s.addRow(['Pretty JSON']);
                 s.addRow([JSON.stringify(obj, null, 2)]);
                 s.columns = [{ width: Math.min(120, (JSON.stringify(obj, null, 2) || '').length + 4) }];
+                // apply border to the JSON cell too for consistency
                 s.eachRow(r => r.eachCell(c => c.border = thinBorder));
             });
 
+            // create buffer and download
             const buf = await wb.xlsx.writeBuffer();
             const codes = meta.outlets.map(o => (State.outlets.find(x => x.id === o)?.name || o).slice(0, 2).toUpperCase()).join(',');
             saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `Comparing-${codes}.xlsx`);
@@ -1335,12 +1481,126 @@
             saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `Filtered-${(new Date()).toISOString().slice(0, 10)}.xlsx`);
         }
 
-        /* ---------- Deep diff helpers ---------- */
+        // ---------- Share URL maker & importer (NEW) ----------
+        function makeShareUrl(mode, opts = {}) {
+            // build rows and error check
+            const res = buildUrlRows(mode);
+            if (res.error) return alert(res.error);
+            const rows = res.rows;
+            if (!rows.length) return alert('No rows available to create share URL');
+
+            // build CSV text (Name,URL per line)
+            const csvLines = rows.map(r => {
+                const name = (r[0] || '').toString().replace(/\r|\n/g, ' ').trim();
+                const url = (r[1] || '').toString().trim();
+                return `${name},${url}`;
+            }).join('\n');
+
+            const encoded = base64EncodeUnicode(csvLines);
+
+            // layout defaults or from opts (you can customize)
+            const layout = {
+                rows: opts.rows != null ? opts.rows : 2,
+                cols: opts.cols != null ? opts.cols : 2,
+                rotate: opts.rotate != null ? opts.rotate : 0,
+                int: opts.int != null ? opts.int : 5,
+                refresh: opts.refresh != null ? opts.refresh : 5
+            };
+
+            // create final URL for the external playback tool (example host)
+            const base = opts.baseUrl || 'https://bhavesh-ses.github.io/URL-Monitoring-Tool/';
+            const params = new URLSearchParams();
+            params.set('data', encoded);
+            params.set('rows', String(layout.rows));
+            params.set('cols', String(layout.cols));
+            params.set('rotate', String(layout.rotate));
+            params.set('int', String(layout.int));
+            params.set('refresh', String(layout.refresh));
+
+            const final = `${base}?${params.toString()}`;
+
+            // copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(final).then(() => {
+                    alert('Share URL copied to clipboard:\n' + final);
+                }).catch(() => {
+                    prompt('Copy this share URL:', final);
+                });
+            } else {
+                // fallback
+                prompt('Copy this share URL:', final);
+            }
+        }
+
+        // parse share data if user loads this tool with data param (best-effort apply)
+        function parseShare() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const encoded = params.get('data');
+                if (!encoded) return;
+                const csv = base64DecodeUnicode(encoded);
+                const lines = csv.split(/\r?\n/).filter(Boolean).map(l => {
+                    const parts = l.split(',');
+                    const name = parts.shift() || '';
+                    const url = parts.join(',');
+                    return { name: name.trim(), url: url.trim() };
+                });
+
+                // attempt to match decoded streams to current selected outlet rows (best-effort)
+                // matching logic: try to find oaId or streamId substring inside URL or name
+                const rowsAll = State.flattened[State.selectedOutlet] || [];
+                const matchedUids = [];
+                lines.forEach(s => {
+                    const found = rowsAll.find(r => {
+                        const oa = (r.oaId || r.raw && (r.raw.oaId || r.raw.oid || r.raw.oa) || '').toString();
+                        const sid = (r.streamId || '').toString();
+                        const rawS = JSON.stringify(r.raw || {});
+                        if (s.url && oa && s.url.includes(oa)) return true;
+                        if (s.url && sid && s.url.includes(sid)) return true;
+                        if (s.name && rawS && rawS.includes(s.name)) return true;
+                        return false;
+                    });
+                    if (found) {
+                        const uid = found.streamId || found.oaId || '';
+                        if (uid) matchedUids.push(uid);
+                    }
+                });
+
+                if (matchedUids.length) {
+                    // apply selection & visuals
+                    matchedUids.forEach(uid => {
+                        if (!State.selectedForExport.has(uid)) addOrderedSelection(uid);
+                    });
+                    // re-render current page so UI shows selections
+                    renderCurrentPage();
+                    alert('Imported share data and matched ' + matchedUids.length + ' rows (best-effort).');
+                } else {
+                    // show modal listing decoded streams (can't auto-map)
+                    const overlay = el('div', { class: 'modal-overlay' });
+                    const modal = el('div', { class: 'modal' }, [
+                        el('div', {}, [el('strong', {}, `Imported share data — ${lines.length} streams`)]),
+                        el('pre', { class: 'json-block', style: 'margin-top:8px;max-height:50vh;overflow:auto' }, JSON.stringify(lines, null, 2)),
+                        el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;margin-top:8px' }, [
+                            el('button', { class: 'btn small', onclick: () => document.body.removeChild(overlay) }, 'Close'),
+                            el('button', { class: 'btn small', onclick: () => { navigator.clipboard && navigator.clipboard.writeText && navigator.clipboard.writeText(JSON.stringify(lines)); alert('Decoded stream list copied to clipboard'); document.body.removeChild(overlay); } }, 'Copy list')
+                        ])
+                    ]);
+                    overlay.appendChild(modal);
+                    overlay.addEventListener('click', (ev) => { if (ev.target === overlay) document.body.removeChild(overlay); });
+                    document.body.appendChild(overlay);
+                }
+            } catch (e) {
+                console.warn('parseShare error', e);
+            }
+        }
+
+
+        /* ---------- Deep-diff helpers ---------- */
         function deepCompare(ref, other) {
             const results = {};
             function rec(a, b, p) {
                 if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null && !Array.isArray(a) && !Array.isArray(b)) {
-                    const keys = Array.from(new Set([...(Object.keys(a || {})), ...(Object.keys(b || {}))]));
+                    const keys = Array.from(new Set([...Object.keys(a || {}), ...Object.keys(b || {})]));
                     keys.forEach(k => rec(a[k], b[k], p ? p + '.' + k : k));
                     return;
                 }
@@ -1358,6 +1618,7 @@
             rec(ref, other, '');
             return results;
         }
+
         function getPathValue(obj, path) {
             try {
                 if (!path) return undefined;
@@ -1365,8 +1626,7 @@
                 const tokens = path.split('.').flatMap(p => p.split(/\[|\]/).filter(Boolean));
                 for (const t of tokens) {
                     if (cur === undefined || cur === null) return undefined;
-                    if (/^\d+$/.test(t) && Array.isArray(cur)) cur = cur[Number(t)];
-                    else cur = cur[t];
+                    if (/^\d+$/.test(t) && Array.isArray(cur)) cur = cur[Number(t)]; else cur = cur[t];
                 }
                 return cur;
             } catch (e) { return undefined }
@@ -1376,47 +1636,24 @@
         function setTheme(t) { document.body.setAttribute('data-theme', t); State.theme = t; themeToggle.checked = (t === 'dark'); }
         setTheme('light');
 
-        /* ---------- Sticky offsets ---------- */
-        function updateStickyOffsets() {
-            try {
-                // appbar height
-                const appbar = document.querySelector('.appbar');
-                const appbarH = appbar ? Math.ceil(appbar.getBoundingClientRect().height) : 0;
-                document.documentElement.style.setProperty('--appbar-height', appbarH + 'px');
-
-                // find current visible page
-                const currentPage = Array.from(document.querySelectorAll('.page')).find(p => window.getComputedStyle(p).display !== 'none') || document.querySelector('.page');
-                if (!currentPage) {
-                    // fallback
-                    document.documentElement.style.setProperty('--page-header-height', '0px');
-                    document.documentElement.style.setProperty('--top-sticky', appbarH + 'px');
-                    return;
-                }
-
-                // the page header is the first direct child in the page container
-                const pageHeader = currentPage.querySelector(':scope > div:first-child');
-                const pageHeaderH = pageHeader ? Math.ceil(pageHeader.getBoundingClientRect().height) : 0;
-                document.documentElement.style.setProperty('--page-header-height', pageHeaderH + 'px');
-
-                // set final top-sticky to appbar + pageHeader
-                const topSticky = appbarH + pageHeaderH;
-                document.documentElement.style.setProperty('--top-sticky', topSticky + 'px');
-
-                // also explicitly ensure the pageHeader's top equals appbar height (keeps it flush)
-                if (pageHeader) pageHeader.style.top = appbarH + 'px';
-
-            } catch (err) {
-                console.warn('updateStickyOffsets error:', err);
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J')) {
+                e.preventDefault();
             }
-        }
-
-        window.addEventListener('resize', () => setTimeout(updateStickyOffsets, 120));
-        window.addEventListener('orientationchange', () => setTimeout(updateStickyOffsets, 120));
+            if (e.keyCode === 123) { // F12 key
+                e.preventDefault();
+            }
+        });
 
         /* ---------- Boot ---------- */
         initUI();
+        parseShare(); // attempt to import any share data in current URL (best-effort)
         window._LP = { State, CONFIG, fetchOutlet, renderNormalPage, renderComparePage, runFilter, exportFilterResultsXLSX };
-        setTimeout(updateStickyOffsets, 180);
+
+        // this tool is best & bug free keep it safe & unchanged
+
     </script>
 </body>
+
 </html>
